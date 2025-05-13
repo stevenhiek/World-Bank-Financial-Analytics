@@ -19,10 +19,14 @@ SELECT *
 INTO banking
 FROM bank;
 
-
 --------------------------
 /* 2. Remove Duplicates */
 --------------------------
+-- Total Counts
+SELECT COUNT(*)
+FROM banking;
+
+
 WITH duplicateRows AS (
     SELECT 
         *,
@@ -74,7 +78,6 @@ JOIN duplicateRows AS d
   AND d.closed_date_most_recent = b.closed_date_most_recent
   AND d.last_disbursement_date = b.last_disbursement_date;
 
-
 -------------------------
 /* 3. Standardize Data */
 -------------------------
@@ -113,11 +116,139 @@ SET
 	project_id = NULLIF(TRIM(project_id), ''),
 	project_name = NULLIF(TRIM(project_name), '');
 
------ Create Credit Status Group
+-- Lowercase Specific VARCHAR Columns
+UPDATE banking
+SET 
+	region = LOWER(region),
+	country_code = LOWER(country_code),
+	country = LOWER(country),
+	borrower = LOWER(borrower),
+	credit_status = LOWER(credit_status),
+	currency_of_commitment = LOWER(currency_of_commitment),
+	project_name = LOWER(project_name);
 
-ALTER TABLE ida_data ADD credit_status_group VARCHAR(50);
+-- Standardize Column Category Values
+----- Credit Number
+SELECT DISTINCT credit_number
+FROM banking 
 
-UPDATE ida_data
+SELECT 
+	LEN(credit_number),
+	COUNT(LEN(credit_number))
+FROM banking
+GROUP BY LEN(credit_number);
+
+SELECT *
+FROM banking
+WHERE LEN(credit_number) < 8;
+
+----- Region
+SELECT DISTINCT region
+FROM banking;
+
+CREATE TABLE region_standardization_mapping (
+    region VARCHAR(50) PRIMARY KEY,
+    region_new VARCHAR(50)
+);
+
+INSERT INTO region_standardization_mapping (region,region_new)
+VALUES
+	('eastern and southern africa','middle east and africa'),
+	('africa west','middle east and africa'),
+	('middle east and north africa','middle east and africa'),
+	('western and central africa','middle east and africa'),
+	('africa','middle east and africa'),
+	('africa east','middle east and africa');
+
+UPDATE b
+SET b.region = r.region_new
+FROM banking b
+INNER JOIN region_standardization_mapping r
+	ON b.region = r.region
+
+----- Country Code
+SELECT DISTINCT country_code
+FROM banking; 
+
+SELECT 
+	LEN(country_code),
+	COUNT(LEN(country_code))
+FROM banking
+GROUP BY LEN(country_code);
+
+SELECT *
+FROM banking
+WHERE LEN(country_code) > 2;
+
+----- Country
+SELECT DISTINCT country
+FROM banking
+ORDER BY country;
+
+CREATE TABLE country_standardization_mapping (
+    country VARCHAR(50) PRIMARY KEY,
+    country_new VARCHAR(50)
+);
+
+INSERT INTO country_standardization_mapping (country,country_new)
+VALUES
+	('central africa','central african republic'),
+	('central america','unknown'),
+	('central asia','unknown'),
+	('congo, democratic republic of','congo'),
+	('congo, republic of','congo'),
+	('eastern africa','unknown'),
+	('eastern and southern africa','unknown'),
+	('egypt, arab republic of','egypt'),
+	('gambia, the','gambia'),
+	('korea, republic of','korea'),
+	('kyrgyz republic','kyrgyzstan'),
+	('lao people''s democratic republic','laos'),
+	('macedonia, former yugoslav republic','north macedonia'),
+	('macedonia, former yugoslav republic of','north macedonia'),
+	('mekong','unknown'),
+	('micronesia, federated states of','micronesia'),
+	('middle east and north africa','unknown'),
+	('oecs countries','unknown'),
+	('pacific islands','unknown'),
+	('south asia','unknown'),
+	('south east asia','unknown'),
+	('st. vincent and the grenadines','st. vincent'),
+	('syrian arab republic','syria'),
+	('taiwan, china','taiwan'),
+	('turkiye','turkey'),
+	('viet nam','vietnam'),
+	('viet nam, cambodia, laos cmu','unknown'),
+	('thailand & myanmar cmu','thailand'),
+	('western africa','unknown'),
+	('western and central africa','unknown'),
+	('world','unknown'),
+	('yemen, republic of','yemen');
+
+UPDATE b
+SET b.country = m.country_new
+FROM banking b
+JOIN country_standardization_mapping m
+    ON b.country = m.country;
+
+
+----- Borrower
+/* too many issues in inconsistencies; don't use borrower for project */
+SELECT DISTINCT borrower
+FROM banking
+ORDER BY borrower;
+
+----- Credit Status
+SELECT DISTINCT credit_status
+FROM banking
+ORDER BY credit_status;
+
+---------- Create Credit Status Group
+
+ALTER TABLE banking
+ADD credit_status_group VARCHAR(50);
+
+UPDATE banking
 SET credit_status_group = CASE
     WHEN credit_status LIKE '%cancelled%' THEN 'cancelled'
     WHEN credit_status LIKE '%signed%' THEN 'signed'
@@ -129,6 +260,40 @@ SET credit_status_group = CASE
     WHEN credit_status LIKE '%terminated%' THEN 'terminated'
     ELSE 'other'
 END;
+
+----- Currency of Commitment
+SELECT DISTINCT currency_of_commitment
+FROM banking
+ORDER BY currency_of_commitment;
+
+----- Project ID
+SELECT DISTINCT project_id
+FROM banking
+ORDER BY project_id;
+
+SELECT 
+	LEN(project_id),
+	COUNT(LEN(project_id))
+FROM banking
+GROUP BY LEN(project_id);
+
+SELECT *
+FROM banking
+WHERE LEN(project_id) = 8;
+
+SELECT *
+FROM banking
+WHERE project_id LIKE '%89101556%';
+
+SELECT *
+FROM banking
+WHERE project_id IS NULL;
+
+----- Project Name
+/* many inconsistencies issues; however, can still use for reference for context understanding */
+SELECT DISTINCT project_name
+FROM banking
+ORDER BY project_name;
 
 -- Check Nulls
 SELECT 
@@ -163,23 +328,64 @@ SELECT
 	SUM(CASE WHEN closed_date_most_recent IS NULL THEN 1 ELSE 0 END) AS closed_date_most_recent_null,
 	SUM(CASE WHEN last_disbursement_date IS NULL THEN 1 ELSE 0 END) AS last_disbursement_date_null
 FROM
-	bank;
+	banking;
 
------ Most Recent Effective Date
-WITH MostRecentEffective AS (
+----- Service Charge Rate
+/* service charge rate has nulls, only able to insert 0 for guarantee financial instrutment nulls */
+SELECT 
+	credit_status,
+	SUM(CASE WHEN service_charge_rate IS NULL THEN 1 ELSE 0 END) AS total_null
+FROM banking
+GROUP BY credit_status
+ORDER BY credit_status;
+
+SELECT *
+FROM banking
+WHERE service_charge_rate IS NULL
+  AND credit_status IN ('Disbursing', 'Closed');
+
+SELECT *
+FROM banking
+WHERE service_charge_rate IS NULL
+  AND (credit_number LIKE '%IDAG%' OR credit_number LIKE '%IDAB%'); 
+
+UPDATE banking
+SET service_charge_rate = 0
+WHERE service_charge_rate IS NULL
+  AND (credit_number LIKE '%IDAG%' OR credit_number LIKE '%IDAB%');
+
+----- First Repayment Date
+WITH firstRepaymentMax AS (
   SELECT 
     project_id,
-    MAX(effectiveness_date) AS latest_effective_date
+    MAX(first_repayment_date) AS latest_repayment_date
   FROM banking
-  WHERE effectiveness_date IS NOT NULL
+  WHERE first_repayment_date IS NOT NULL
   GROUP BY project_id
 )
 UPDATE b
-SET effectiveness_date = m.latest_effective_date
+SET b.first_repayment_date = a.latest_repayment_date
 FROM banking b
-JOIN MostRecentEffective m
-  ON b.project_id = m.project_id
-WHERE b.effectiveness_date IS NULL;
+JOIN firstRepaymentMax a
+  ON b.project_id = a.project_id
+WHERE b.first_repayment_date IS NULL;
+
+
+----- Agreement Signing Date
+WITH agreementSigningMax AS (
+  SELECT 
+    project_id,
+    MAX(agreement_signing_date) AS latest_signing_date
+  FROM banking
+  WHERE agreement_signing_date IS NOT NULL
+  GROUP BY project_id
+)
+UPDATE b
+SET b.agreement_signing_date = a.latest_signing_date
+FROM banking b
+JOIN agreementSigningMax a
+  ON b.project_id = a.project_id
+WHERE b.agreement_signing_date IS NULL;
 
 UPDATE banking
 SET agreement_signing_date = board_approval_date
@@ -187,6 +393,30 @@ WHERE credit_status = 'signed'
   AND agreement_signing_date IS NULL
   AND board_approval_date IS NOT NULL;
 
+----- Most Recent Effective Date
+WITH MostRecentEffective AS (
+  SELECT 
+    project_id,
+    MAX(effective_date_most_recent) AS latest_effective_date
+  FROM banking
+  WHERE effective_date_most_recent IS NOT NULL
+  GROUP BY project_id
+)
+UPDATE b
+SET b.effective_date_most_recent = m.latest_effective_date
+FROM banking b
+JOIN MostRecentEffective m
+  ON b.project_id = m.project_id
+WHERE b.effective_date_most_recent IS NULL;
+
+----- Board Approval Date
+/* unable to proxy board approval date to agreement signing date */
+SELECT
+	*
+FROM banking
+WHERE 
+	board_approval_date IS NULL AND
+	agreement_signing_date IS NULL;
 
 ----- Disbursement Date
 WITH LastDisbursementFix AS (
@@ -201,23 +431,16 @@ FROM banking b
 JOIN LastDisbursementFix f ON b.project_id = f.project_id
 WHERE b.last_disbursement_date IS NULL;
 
------ Board Approval Date
-UPDATE banking
-SET agreement_signing_date = board_approval_date,
-    agreement_date_estimated = 1
-WHERE 
-    credit_status IN ('approved', 'cancelled', 'terminated')
-    AND agreement_signing_date IS NULL;
-
 
 ------------------------------------------
 /* 4. Remove Unnecessary Rows & Columns */
 ------------------------------------------
--- Drop Columns Not in Project Scope
+-- Drop Columns Not in Project Scope or Unnecessary Do to Lack of Meaningful Information in Data Provided
 ALTER TABLE banking
 DROP COLUMN 
 	country_code,
 	borrower,
+	exchange_adjustment_us,
     sold_3rd_party_us, 
     repaid_3rd_party_us, 
     due_3rd_party_us, 
@@ -225,14 +448,85 @@ DROP COLUMN
 
 -- Check for Anomalies 
 SELECT credit_number, project_id, credit_status,
-       board_approval_date, agreement_signing_date, effectiveness_date
+       board_approval_date, agreement_signing_date, effective_date_most_recent
 FROM banking
-WHERE effectiveness_date IS NOT NULL
+WHERE effective_date_most_recent IS NOT NULL
   AND (board_approval_date IS NULL OR agreement_signing_date IS NULL);
+
+
+SELECT *
+FROM banking
+WHERE credit_status IN ('effective', 'disbursing', 'repaid')
+  AND effective_date_most_recent IS NOT NULL;
+
+-- Drop Board Approval Date Nulls
+/* corrupted data as there is no way to proxy but there is are effective dates with illogical credit status, suggesting corrupted data */
+SELECT
+	agreement_signing_date,
+	board_approval_date,
+	credit_status
+FROM banking
+WHERE 
+	board_approval_date IS NULL AND
+	agreement_signing_date IS NULL;
+
+DELETE FROM banking
+WHERE 
+	board_approval_date IS NULL AND
+	agreement_signing_date IS NULL;
+
+
+-- Drop other credit status group
+SELECT
+	credit_status,
+	COUNT(*)
+FROM banking
+WHERE credit_status_group = 'other'
+GROUP BY credit_status
+
+SELECT *
+FROM banking
+WHERE latest_effective_date IS NULL
 
 ------------------------------------------
 /* 5. Finalize Data */
 ------------------------------------------
+-- Rename Columns for Analysis 
+EXEC sp_rename 'banking.end_of_period','period_end_date','COLUMN';
+EXEC sp_rename 'banking.original_principal_amount_us','principal_amount','COLUMN';
+EXEC sp_rename 'banking.cancelled_amount_us','cancelled_amount','COLUMN';
+EXEC sp_rename 'banking.undisbursed_amount_us','disbursed_amount','COLUMN';
+EXEC sp_rename 'banking.repaid_to_ida_us','repaid_amount','COLUMN';
+EXEC sp_rename 'banking.due_to_ida_us','due_amount','COLUMN';
+EXEC sp_rename 'banking.borrower_s_obligation_us','borrower_obligation_amount','COLUMN';
+EXEC sp_rename 'banking.effective_date_most_recent','latest_effective_date','COLUMN';
+EXEC sp_rename 'banking.closed_date_most_recent','latest_closed_date','COLUMN';
+EXEC sp_rename 'banking.last_disbursement_date','latest_disbursement_date','COLUMN';
 
-SELECT * FROM banking
+-- Create Financial Instrument Category to Denote: guarantee, credit, or grant
+SELECT 
+	CASE 
+	WHEN credit_number LIKE '%IDAE%' OR credit_number LIKE '%IDAH%' OR credit_number LIKE '%IDAD%' THEN 'grant'
+	WHEN credit_number LIKE '%IDAB%' OR credit_number LIKE '%IDAG%' THEN 'guarantee'
+	ELSE 'credit'
+	END AS financial_instrument,
+	COUNT(*)
+FROM bank
+GROUP BY CASE 
+	WHEN credit_number LIKE '%IDAE%' OR credit_number LIKE '%IDAH%' OR credit_number LIKE '%IDAD%' THEN 'grant'
+	WHEN credit_number LIKE '%IDAB%' OR credit_number LIKE '%IDAG%' THEN 'guarantee'
+	ELSE 'credit'
+	END;
+
+
+ALTER TABLE banking
+ADD financial_instrument VARCHAR(50);
+
+UPDATE banking
+SET financial_instrument = CASE 
+	WHEN credit_number LIKE '%IDAE%' OR credit_number LIKE '%IDAH%' OR credit_number LIKE '%IDAD%' THEN 'grant'
+	WHEN credit_number LIKE '%IDAB%' OR credit_number LIKE '%IDAG%' THEN 'guarantee'
+	ELSE 'credit'
+	END;
+
 
