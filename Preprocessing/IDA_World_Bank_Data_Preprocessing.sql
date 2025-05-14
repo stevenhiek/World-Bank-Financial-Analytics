@@ -475,6 +475,9 @@ WHERE
 	board_approval_date IS NULL AND
 	agreement_signing_date IS NULL;
 
+-- Keep Only Board Approval Dates Between 2011 and 2025
+DELETE FROM banking
+WHERE YEAR(board_approval_date) NOT BETWEEN 2011 and 2025;
 
 -- Drop other credit status group
 SELECT

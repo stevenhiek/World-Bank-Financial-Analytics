@@ -19,6 +19,7 @@ Project Questions:
 --------------------------------------------------------------------------------------
 /* 1. Which regions or countries received the most credits, grants, and guarantees?  */
 --------------------------------------------------------------------------------------
+----- OVERALL
 -- Total Principal Amount by Financial Instruments
 WITH uniqueProjects AS 
 (
@@ -27,6 +28,7 @@ WITH uniqueProjects AS
 		financial_instrument,
 		ROUND(MAX(principal_amount),0) AS total_principal_amount
 	FROM banking
+	WHERE YEAR(board_approval_date) BETWEEN 2011 AND 2025
 	GROUP BY 
 		project_id,
 		financial_instrument
@@ -54,6 +56,7 @@ WITH uniqueProjects AS
 		region,
 		ROUND(MAX(principal_amount),0) AS total_principal_amount
 	FROM banking
+	WHERE YEAR(board_approval_date) BETWEEN 2011 AND 2025
 	GROUP BY 
 		project_id,
 		region
@@ -83,6 +86,7 @@ WITH uniqueProjects AS
 		financial_instrument,
 		ROUND(MAX(principal_amount),0) AS total_principal_amount
 	FROM banking
+	WHERE YEAR(board_approval_date) BETWEEN 2011 AND 2025
 	GROUP BY 
 		project_id,
 		region,
@@ -115,7 +119,9 @@ WITH uniqueProjects AS
 		region,
 		ROUND(MAX(principal_amount),0) AS total_principal_amount
 	FROM banking
-	WHERE financial_instrument='credit'
+	WHERE 
+		financial_instrument='credit'
+		AND YEAR(board_approval_date) BETWEEN 2011 AND 2025
 	GROUP BY 
 		project_id,
 		region
@@ -144,7 +150,9 @@ WITH uniqueProjects AS
 		region,
 		ROUND(MAX(principal_amount),0) AS total_principal_amount
 	FROM banking
-	WHERE financial_instrument='grant'
+	WHERE 
+		financial_instrument='grant'
+		AND YEAR(board_approval_date) BETWEEN 2011 AND 2025
 	GROUP BY 
 		project_id,
 		region
@@ -173,7 +181,9 @@ WITH uniqueProjects AS
 		region,
 		ROUND(MAX(principal_amount),0) AS total_principal_amount
 	FROM banking
-	WHERE financial_instrument='guarantee'
+	WHERE 
+		financial_instrument='guarantee'
+		AND YEAR(board_approval_date) BETWEEN 2011 AND 2025
 	GROUP BY 
 		project_id,
 		region
@@ -203,6 +213,7 @@ WITH uniqueProjects AS
 		country,
 		ROUND(MAX(principal_amount),0) AS total_principal_amount
 	FROM banking
+	WHERE YEAR(board_approval_date) BETWEEN 2011 AND 2025
 	GROUP BY 
 		project_id,
 		country
@@ -232,6 +243,7 @@ WITH uniqueProjects AS
 		financial_instrument,
 		ROUND(MAX(principal_amount),0) AS total_principal_amount
 	FROM banking
+	WHERE YEAR(board_approval_date) BETWEEN 2011 AND 2025
 	GROUP BY 
 		project_id,
 		country,
@@ -264,7 +276,9 @@ WITH uniqueProjects AS
 		country,
 		ROUND(MAX(principal_amount),0) AS total_principal_amount
 	FROM banking
-	WHERE financial_instrument='credit'
+	WHERE 
+		financial_instrument='credit'
+		AND YEAR(board_approval_date) BETWEEN 2011 AND 2025
 	GROUP BY 
 		project_id,
 		country
@@ -293,7 +307,9 @@ WITH uniqueProjects AS
 		country,
 		ROUND(MAX(principal_amount),0) AS total_principal_amount
 	FROM banking
-	WHERE financial_instrument='grant'
+	WHERE 
+		financial_instrument='grant'
+		AND YEAR(board_approval_date) BETWEEN 2011 AND 2025
 	GROUP BY 
 		project_id,
 		country
@@ -314,7 +330,7 @@ SELECT
 FROM countryTotals
 ORDER BY total_principal_amount DESC;
 
--- Most Gaurantee Funded by Country
+-- Most Guarantee Funded by Country
 WITH uniqueProjects AS
 (
 	SELECT
@@ -322,7 +338,9 @@ WITH uniqueProjects AS
 		country,
 		ROUND(MAX(principal_amount),0) AS total_principal_amount
 	FROM banking
-	WHERE financial_instrument='guarantee'
+	WHERE 
+		financial_instrument='guarantee'
+		AND YEAR(board_approval_date) BETWEEN 2011 AND 2025
 	GROUP BY 
 		project_id,
 		country
@@ -348,6 +366,7 @@ ORDER BY total_principal_amount DESC;
 /* 2. Which regions or countries received the most IDA funding over time? */
 ----------------------------------------------------------------------------
 /* Use board approval date to shown IDA commitment to funding over time */
+----- OVERALL
 -- Overall Funding Commitment Over Time 
 WITH uniqueProjects AS
 (
@@ -377,6 +396,100 @@ SELECT
         / LAG(total_funding) OVER (ORDER BY funding_year), 1) AS percent_change
 FROM yearlyFunding
 ORDER BY funding_year ASC;
+
+-- Overall Credit Funding Over Time
+WITH uniqueProjects AS
+(
+	SELECT 
+		YEAR(board_approval_date) AS funding_year,
+		project_id,
+		ROUND(MAX(principal_amount),0) AS total_principal_amount
+	FROM banking
+	WHERE board_approval_date IS NOT NULL
+		AND YEAR(board_approval_date) BETWEEN 2011 AND 2025
+		AND financial_instrument = 'credit'
+	GROUP BY 
+		YEAR(board_approval_date),
+		project_id
+),
+yearlyFunding AS 
+(
+	SELECT 
+		funding_year,
+		SUM(total_principal_amount) AS total_funding
+	FROM uniqueProjects
+	GROUP BY funding_year
+)
+SELECT 
+	funding_year,
+	total_funding,
+	ROUND(100.0 * (total_funding - LAG(total_funding) OVER (ORDER BY funding_year)) 
+        / LAG(total_funding) OVER (ORDER BY funding_year), 1) AS percent_change
+FROM yearlyFunding
+ORDER BY funding_year ASC;
+
+-- Overall Grant Funding Over Time
+WITH uniqueProjects AS
+(
+	SELECT 
+		YEAR(board_approval_date) AS funding_year,
+		project_id,
+		ROUND(MAX(principal_amount),0) AS total_principal_amount
+	FROM banking
+	WHERE board_approval_date IS NOT NULL
+		AND YEAR(board_approval_date) BETWEEN 2011 AND 2025
+		AND financial_instrument = 'grant'
+	GROUP BY 
+		YEAR(board_approval_date),
+		project_id
+),
+yearlyFunding AS 
+(
+	SELECT 
+		funding_year,
+		SUM(total_principal_amount) AS total_funding
+	FROM uniqueProjects
+	GROUP BY funding_year
+)
+SELECT 
+	funding_year,
+	total_funding,
+	ROUND(100.0 * (total_funding - LAG(total_funding) OVER (ORDER BY funding_year)) 
+        / LAG(total_funding) OVER (ORDER BY funding_year), 1) AS percent_change
+FROM yearlyFunding
+ORDER BY funding_year ASC;
+
+-- Overall Guarantee Funding Over Time
+WITH uniqueProjects AS
+(
+	SELECT 
+		YEAR(board_approval_date) AS funding_year,
+		project_id,
+		ROUND(MAX(principal_amount),0) AS total_principal_amount
+	FROM banking
+	WHERE board_approval_date IS NOT NULL
+		AND YEAR(board_approval_date) BETWEEN 2011 AND 2025
+		AND financial_instrument = 'guarantee'
+	GROUP BY 
+		YEAR(board_approval_date),
+		project_id
+),
+yearlyFunding AS 
+(
+	SELECT 
+		funding_year,
+		SUM(total_principal_amount) AS total_funding
+	FROM uniqueProjects
+	GROUP BY funding_year
+)
+SELECT 
+	funding_year,
+	total_funding,
+	ROUND(100.0 * (total_funding - LAG(total_funding) OVER (ORDER BY funding_year)) 
+        / LAG(total_funding) OVER (ORDER BY funding_year), 1) AS percent_change
+FROM yearlyFunding
+ORDER BY funding_year ASC;
+
 
 ----- REGION
 -- Overall Funding by Region Over Time
@@ -428,8 +541,358 @@ FROM yearlyFunding
 GROUP BY funding_year
 ORDER BY funding_year ASC;
 
+-- Credit Funding by Region Over Time
+WITH uniqueProjects AS
+(
+	SELECT 
+		YEAR(board_approval_date) AS funding_year,
+		project_id,
+		region,
+		ROUND(MAX(principal_amount),0) AS total_principal_amount
+	FROM banking
+	WHERE board_approval_date IS NOT NULL
+		AND YEAR(board_approval_date) BETWEEN 2011 AND 2025
+		AND financial_instrument='credit'
+	GROUP BY 
+		YEAR(board_approval_date),
+		project_id,
+		region
+),
+yearlyFunding AS 
+(
+	SELECT 
+		funding_year,
+		region,
+		SUM(total_principal_amount) AS total_funding
+	FROM uniqueProjects
+	GROUP BY 
+		funding_year,
+		region
+)
+SELECT 
+	funding_year,
+	SUM(CASE WHEN region='east asia and pacific' THEN total_funding ELSE 0 END) AS east_asia_and_pacific,
+	SUM(CASE WHEN region='europe and central asia' THEN total_funding ELSE 0 END) AS europe_and_central_asia,
+	SUM(CASE WHEN region='latin america and caribbean' THEN total_funding ELSE 0 END) AS latin_america_and_caribbean,
+	SUM(CASE WHEN region='middle east and africa' THEN total_funding ELSE 0 END) AS middle_east_and_africa,
+	SUM(CASE WHEN region='south asia' THEN total_funding ELSE 0 END) AS south_asia,
+	SUM(CASE WHEN region='other' THEN total_funding ELSE 0 END) AS other,
+	ROUND(100.0 * (SUM(CASE WHEN region='east asia and pacific' THEN total_funding ELSE 0 END) - LAG(SUM(CASE WHEN region='east asia and pacific' THEN total_funding ELSE 0 END)) OVER (ORDER BY funding_year)) 
+        / LAG(SUM(CASE WHEN region='east asia and pacific' THEN total_funding ELSE 0 END)) OVER (ORDER BY funding_year), 1) AS eap_pct_chg,
+	ROUND(100.0 * (SUM(CASE WHEN region='europe and central asia' THEN total_funding ELSE 0 END) - LAG(SUM(CASE WHEN region='europe and central asia' THEN total_funding ELSE 0 END)) OVER (ORDER BY funding_year)) 
+        / LAG(SUM(CASE WHEN region='europe and central asia' THEN total_funding ELSE 0 END)) OVER (ORDER BY funding_year), 1) AS eca_pct_chg,
+	ROUND(100.0 * (SUM(CASE WHEN region='latin america and caribbean' THEN total_funding ELSE 0 END) - LAG(SUM(CASE WHEN region='latin america and caribbean' THEN total_funding ELSE 0 END)) OVER (ORDER BY funding_year)) 
+        / LAG(SUM(CASE WHEN region='latin america and caribbean' THEN total_funding ELSE 0 END)) OVER (ORDER BY funding_year), 1) AS lac_pct_chg,
+	ROUND(100.0 * (SUM(CASE WHEN region='middle east and africa' THEN total_funding ELSE 0 END) - LAG(SUM(CASE WHEN region='middle east and africa' THEN total_funding ELSE 0 END)) OVER (ORDER BY funding_year)) 
+        / LAG(SUM(CASE WHEN region='middle east and africa' THEN total_funding ELSE 0 END)) OVER (ORDER BY funding_year), 1) AS mea_pct_chg,
+	ROUND(100.0 * (SUM(CASE WHEN region='south asia' THEN total_funding ELSE 0 END) - LAG(SUM(CASE WHEN region='south asia' THEN total_funding ELSE 0 END)) OVER (ORDER BY funding_year)) 
+        / LAG(SUM(CASE WHEN region='south asia' THEN total_funding ELSE 0 END)) OVER (ORDER BY funding_year), 1) AS sa_pct_chg
+FROM yearlyFunding
+GROUP BY funding_year
+ORDER BY funding_year ASC;
 
+-- Grant Funding by Region Over Time
+WITH uniqueProjects AS
+(
+	SELECT 
+		YEAR(board_approval_date) AS funding_year,
+		project_id,
+		region,
+		ROUND(MAX(principal_amount),0) AS total_principal_amount
+	FROM banking
+	WHERE board_approval_date IS NOT NULL
+		AND YEAR(board_approval_date) BETWEEN 2011 AND 2025
+		AND financial_instrument='grant'
+	GROUP BY 
+		YEAR(board_approval_date),
+		project_id,
+		region
+),
+yearlyFunding AS 
+(
+	SELECT 
+		funding_year,
+		region,
+		SUM(total_principal_amount) AS total_funding
+	FROM uniqueProjects
+	GROUP BY 
+		funding_year,
+		region
+)
+SELECT 
+	funding_year,
+	SUM(CASE WHEN region='east asia and pacific' THEN total_funding ELSE 0 END) AS east_asia_and_pacific,
+	SUM(CASE WHEN region='europe and central asia' THEN total_funding ELSE 0 END) AS europe_and_central_asia,
+	SUM(CASE WHEN region='latin america and caribbean' THEN total_funding ELSE 0 END) AS latin_america_and_caribbean,
+	SUM(CASE WHEN region='middle east and africa' THEN total_funding ELSE 0 END) AS middle_east_and_africa,
+	SUM(CASE WHEN region='south asia' THEN total_funding ELSE 0 END) AS south_asia,
+	SUM(CASE WHEN region='other' THEN total_funding ELSE 0 END) AS other,
+	ROUND(100.0 * (SUM(CASE WHEN region='east asia and pacific' THEN total_funding ELSE 0 END) - LAG(SUM(CASE WHEN region='east asia and pacific' THEN total_funding ELSE 0 END)) OVER (ORDER BY funding_year)) 
+        / LAG(SUM(CASE WHEN region='east asia and pacific' THEN total_funding ELSE 0 END)) OVER (ORDER BY funding_year), 1) AS eap_pct_chg,
+	ROUND(100.0 * (SUM(CASE WHEN region='europe and central asia' THEN total_funding ELSE 0 END) - LAG(SUM(CASE WHEN region='europe and central asia' THEN total_funding ELSE 0 END)) OVER (ORDER BY funding_year)) 
+        / LAG(SUM(CASE WHEN region='europe and central asia' THEN total_funding ELSE 0 END)) OVER (ORDER BY funding_year), 1) AS eca_pct_chg,
+	ROUND(100.0 * (SUM(CASE WHEN region='latin america and caribbean' THEN total_funding ELSE 0 END) - LAG(SUM(CASE WHEN region='latin america and caribbean' THEN total_funding ELSE 0 END)) OVER (ORDER BY funding_year)) 
+        / LAG(SUM(CASE WHEN region='latin america and caribbean' THEN total_funding ELSE 0 END)) OVER (ORDER BY funding_year), 1) AS lac_pct_chg,
+	ROUND(100.0 * (SUM(CASE WHEN region='middle east and africa' THEN total_funding ELSE 0 END) - LAG(SUM(CASE WHEN region='middle east and africa' THEN total_funding ELSE 0 END)) OVER (ORDER BY funding_year)) 
+        / LAG(SUM(CASE WHEN region='middle east and africa' THEN total_funding ELSE 0 END)) OVER (ORDER BY funding_year), 1) AS mea_pct_chg,
+	ROUND(100.0 * (SUM(CASE WHEN region='south asia' THEN total_funding ELSE 0 END) - LAG(SUM(CASE WHEN region='south asia' THEN total_funding ELSE 0 END)) OVER (ORDER BY funding_year)) 
+        / LAG(SUM(CASE WHEN region='south asia' THEN total_funding ELSE 0 END)) OVER (ORDER BY funding_year), 1) AS sa_pct_chg
+FROM yearlyFunding
+GROUP BY funding_year
+ORDER BY funding_year ASC;
 
+-- Guarantee Funding by Region Over Time
+WITH uniqueProjects AS
+(
+	SELECT 
+		YEAR(board_approval_date) AS funding_year,
+		project_id,
+		region,
+		ROUND(MAX(principal_amount),0) AS total_principal_amount
+	FROM banking
+	WHERE board_approval_date IS NOT NULL
+		AND (YEAR(board_approval_date) BETWEEN 2011 AND 2025)
+		AND financial_instrument='guarantee'
+	GROUP BY 
+		YEAR(board_approval_date),
+		project_id,
+		region
+),
+yearlyFunding AS 
+(
+	SELECT 
+		funding_year,
+		region,
+		SUM(total_principal_amount) AS total_funding
+	FROM uniqueProjects
+	GROUP BY 
+		funding_year,
+		region
+)
+SELECT 
+	funding_year,
+	SUM(CASE WHEN region='east asia and pacific' THEN total_funding ELSE 0 END) AS east_asia_and_pacific,
+	SUM(CASE WHEN region='europe and central asia' THEN total_funding ELSE 0 END) AS europe_and_central_asia,
+	SUM(CASE WHEN region='latin america and caribbean' THEN total_funding ELSE 0 END) AS latin_america_and_caribbean,
+	SUM(CASE WHEN region='middle east and africa' THEN total_funding ELSE 0 END) AS middle_east_and_africa,
+	SUM(CASE WHEN region='south asia' THEN total_funding ELSE 0 END) AS south_asia,
+	SUM(CASE WHEN region='other' THEN total_funding ELSE 0 END) AS other,
+	ISNULL(ROUND(100.0 * (SUM(CASE WHEN region='east asia and pacific' THEN total_funding ELSE 0 END) - LAG(SUM(CASE WHEN region='east asia and pacific' THEN total_funding ELSE 0 END)) OVER (ORDER BY funding_year)) 
+        / NULLIF(LAG(SUM(CASE WHEN region='east asia and pacific' THEN total_funding ELSE 0 END)) OVER (ORDER BY funding_year),0), 1),0) AS eap_pct_chg,
+	ISNULL(ROUND(100.0 * (SUM(CASE WHEN region='europe and central asia' THEN total_funding ELSE 0 END) - LAG(SUM(CASE WHEN region='europe and central asia' THEN total_funding ELSE 0 END)) OVER (ORDER BY funding_year)) 
+        / NULLIF(LAG(SUM(CASE WHEN region='europe and central asia' THEN total_funding ELSE 0 END)) OVER (ORDER BY funding_year),0), 1),0) AS eca_pct_chg,
+	ISNULL(ROUND(100.0 * (SUM(CASE WHEN region='latin america and caribbean' THEN total_funding ELSE 0 END) - LAG(SUM(CASE WHEN region='latin america and caribbean' THEN total_funding ELSE 0 END)) OVER (ORDER BY funding_year)) 
+        / NULLIF(LAG(SUM(CASE WHEN region='latin america and caribbean' THEN total_funding ELSE 0 END)) OVER (ORDER BY funding_year),0), 1),0) AS lac_pct_chg,
+	ISNULL(ROUND(100.0 * (SUM(CASE WHEN region='middle east and africa' THEN total_funding ELSE 0 END) - LAG(SUM(CASE WHEN region='middle east and africa' THEN total_funding ELSE 0 END)) OVER (ORDER BY funding_year)) 
+        / NULLIF(LAG(SUM(CASE WHEN region='middle east and africa' THEN total_funding ELSE 0 END)) OVER (ORDER BY funding_year),0), 1),0) AS mea_pct_chg,
+	ISNULL(ROUND(100.0 * (SUM(CASE WHEN region='south asia' THEN total_funding ELSE 0 END) - LAG(SUM(CASE WHEN region='south asia' THEN total_funding ELSE 0 END)) OVER (ORDER BY funding_year)) 
+        / NULLIF(LAG(SUM(CASE WHEN region='south asia' THEN total_funding ELSE 0 END)) OVER (ORDER BY funding_year),0), 1),0) AS sa_pct_chg
+FROM yearlyFunding
+GROUP BY funding_year
+ORDER BY funding_year ASC;
+
+----- COUNTRY
+-- Overall Funding by Top 5 Countries Over Time
+WITH uniqueProjects AS
+(
+	SELECT 
+		YEAR(board_approval_date) AS funding_year,
+		project_id,
+		country,
+		ROUND(MAX(principal_amount),0) AS total_principal_amount
+	FROM banking
+	WHERE board_approval_date IS NOT NULL
+		AND YEAR(board_approval_date) BETWEEN 2011 AND 2025
+		AND country in ('bangladesh','nigeria','ethiopia','pakistan','kenya')
+	GROUP BY 
+		YEAR(board_approval_date),
+		project_id,
+		country
+),
+yearlyFunding AS 
+(
+	SELECT 
+		funding_year,
+		country,
+		SUM(total_principal_amount) AS total_funding
+	FROM uniqueProjects
+	GROUP BY 
+		funding_year,
+		country
+)
+SELECT 
+	funding_year,
+	SUM(CASE WHEN country='bangladesh' THEN total_funding ELSE 0 END) AS bangladesh,
+	SUM(CASE WHEN country='nigeria' THEN total_funding ELSE 0 END) AS nigeria,
+	SUM(CASE WHEN country='ethiopia' THEN total_funding ELSE 0 END) AS ethiopia,
+	SUM(CASE WHEN country='pakistan' THEN total_funding ELSE 0 END) AS pakistan,
+	SUM(CASE WHEN country='kenya' THEN total_funding ELSE 0 END) AS kenya,
+	ROUND(100.0 * (SUM(CASE WHEN country='bangladesh' THEN total_funding ELSE 0 END) - LAG(SUM(CASE WHEN country='bangladesh' THEN total_funding ELSE 0 END)) OVER (ORDER BY funding_year)) 
+        / LAG(SUM(CASE WHEN country='bangladesh' THEN total_funding ELSE 0 END)) OVER (ORDER BY funding_year), 1) AS bangladesh_pct_chg,
+	ROUND(100.0 * (SUM(CASE WHEN country='nigeria' THEN total_funding ELSE 0 END) - LAG(SUM(CASE WHEN country='nigeria' THEN total_funding ELSE 0 END)) OVER (ORDER BY funding_year)) 
+        / LAG(SUM(CASE WHEN country='nigeria' THEN total_funding ELSE 0 END)) OVER (ORDER BY funding_year), 1) AS nigeria_pct_chg,
+	ROUND(100.0 * (SUM(CASE WHEN country='ethiopia' THEN total_funding ELSE 0 END) - LAG(SUM(CASE WHEN country='ethiopia' THEN total_funding ELSE 0 END)) OVER (ORDER BY funding_year)) 
+        / LAG(SUM(CASE WHEN country='ethiopia' THEN total_funding ELSE 0 END)) OVER (ORDER BY funding_year), 1) AS ethiopia_pct_chg,
+	ROUND(100.0 * (SUM(CASE WHEN country='pakistan' THEN total_funding ELSE 0 END) - LAG(SUM(CASE WHEN country='pakistan' THEN total_funding ELSE 0 END)) OVER (ORDER BY funding_year)) 
+        / LAG(SUM(CASE WHEN country='pakistan' THEN total_funding ELSE 0 END)) OVER (ORDER BY funding_year), 1) AS pakistan_pct_chg,
+	ROUND(100.0 * (SUM(CASE WHEN country='kenya' THEN total_funding ELSE 0 END) - LAG(SUM(CASE WHEN country='kenya' THEN total_funding ELSE 0 END)) OVER (ORDER BY funding_year)) 
+        / LAG(SUM(CASE WHEN country='kenya' THEN total_funding ELSE 0 END)) OVER (ORDER BY funding_year), 1) AS kenya_pct_chg
+FROM yearlyFunding
+GROUP BY funding_year
+ORDER BY funding_year ASC;
+
+-- Credit Funding by Top 5 Countries Over Time
+WITH uniqueProjects AS
+(
+	SELECT 
+		YEAR(board_approval_date) AS funding_year,
+		project_id,
+		country,
+		ROUND(MAX(principal_amount),0) AS total_principal_amount
+	FROM banking
+	WHERE 
+		financial_instrument = 'credit'
+		AND board_approval_date IS NOT NULL
+		AND YEAR(board_approval_date) BETWEEN 2011 AND 2025
+		AND country in ('bangladesh','nigeria','ethiopia','pakistan','kenya')
+	GROUP BY 
+		YEAR(board_approval_date),
+		project_id,
+		country
+),
+yearlyFunding AS 
+(
+	SELECT 
+		funding_year,
+		country,
+		SUM(total_principal_amount) AS total_funding
+	FROM uniqueProjects
+	GROUP BY 
+		funding_year,
+		country
+)
+SELECT 
+	funding_year,
+	SUM(CASE WHEN country='bangladesh' THEN total_funding ELSE 0 END) AS bangladesh,
+	SUM(CASE WHEN country='nigeria' THEN total_funding ELSE 0 END) AS nigeria,
+	SUM(CASE WHEN country='ethiopia' THEN total_funding ELSE 0 END) AS ethiopia,
+	SUM(CASE WHEN country='pakistan' THEN total_funding ELSE 0 END) AS pakistan,
+	SUM(CASE WHEN country='kenya' THEN total_funding ELSE 0 END) AS kenya,
+	ROUND(100.0 * (SUM(CASE WHEN country='bangladesh' THEN total_funding ELSE 0 END) - LAG(SUM(CASE WHEN country='bangladesh' THEN total_funding ELSE 0 END)) OVER (ORDER BY funding_year)) 
+        / LAG(SUM(CASE WHEN country='bangladesh' THEN total_funding ELSE 0 END)) OVER (ORDER BY funding_year), 1) AS bangladesh_pct_chg,
+	ROUND(100.0 * (SUM(CASE WHEN country='nigeria' THEN total_funding ELSE 0 END) - LAG(SUM(CASE WHEN country='nigeria' THEN total_funding ELSE 0 END)) OVER (ORDER BY funding_year)) 
+        / LAG(SUM(CASE WHEN country='nigeria' THEN total_funding ELSE 0 END)) OVER (ORDER BY funding_year), 1) AS nigeria_pct_chg,
+	ROUND(100.0 * (SUM(CASE WHEN country='ethiopia' THEN total_funding ELSE 0 END) - LAG(SUM(CASE WHEN country='ethiopia' THEN total_funding ELSE 0 END)) OVER (ORDER BY funding_year)) 
+        / LAG(SUM(CASE WHEN country='ethiopia' THEN total_funding ELSE 0 END)) OVER (ORDER BY funding_year), 1) AS ethiopia_pct_chg,
+	ROUND(100.0 * (SUM(CASE WHEN country='pakistan' THEN total_funding ELSE 0 END) - LAG(SUM(CASE WHEN country='pakistan' THEN total_funding ELSE 0 END)) OVER (ORDER BY funding_year)) 
+        / LAG(SUM(CASE WHEN country='pakistan' THEN total_funding ELSE 0 END)) OVER (ORDER BY funding_year), 1) AS pakistan_pct_chg,
+	ROUND(100.0 * (SUM(CASE WHEN country='kenya' THEN total_funding ELSE 0 END) - LAG(SUM(CASE WHEN country='kenya' THEN total_funding ELSE 0 END)) OVER (ORDER BY funding_year)) 
+        / LAG(SUM(CASE WHEN country='kenya' THEN total_funding ELSE 0 END)) OVER (ORDER BY funding_year), 1) AS kenya_pct_chg
+FROM yearlyFunding
+GROUP BY funding_year
+ORDER BY funding_year ASC;
+
+-- Grant Funding by Top 5 Countries Over Time
+WITH uniqueProjects AS
+(
+	SELECT 
+		YEAR(board_approval_date) AS funding_year,
+		project_id,
+		country,
+		ROUND(MAX(principal_amount),0) AS total_principal_amount
+	FROM banking
+	WHERE 
+		financial_instrument = 'grant'
+		AND board_approval_date IS NOT NULL
+		AND YEAR(board_approval_date) BETWEEN 2011 AND 2025
+		AND country in ('ethiopia','mozambique','congo','afghanistan','chad')
+	GROUP BY 
+		YEAR(board_approval_date),
+		project_id,
+		country
+),
+yearlyFunding AS 
+(
+	SELECT 
+		funding_year,
+		country,
+		SUM(total_principal_amount) AS total_funding
+	FROM uniqueProjects
+	GROUP BY 
+		funding_year,
+		country
+)
+SELECT      
+	funding_year,
+	SUM(CASE WHEN country='ethiopia' THEN total_funding ELSE 0 END) AS ethiopia,
+	SUM(CASE WHEN country='mozambique' THEN total_funding ELSE 0 END) AS mozambique,
+	SUM(CASE WHEN country='congo' THEN total_funding ELSE 0 END) AS congo,
+	SUM(CASE WHEN country='afghanistan' THEN total_funding ELSE 0 END) AS afghanistan,
+	SUM(CASE WHEN country='chad' THEN total_funding ELSE 0 END) AS chad,
+	ISNULL(ROUND(100.0 * (SUM(CASE WHEN country='ethiopia' THEN total_funding ELSE 0 END) - LAG(SUM(CASE WHEN country='ethiopia' THEN total_funding ELSE 0 END)) OVER (ORDER BY funding_year)) 
+        / NULLIF(LAG(SUM(CASE WHEN country='ethiopia' THEN total_funding ELSE 0 END)) OVER (ORDER BY funding_year),0), 1),0) AS ethiopia_pct_chg,
+	ISNULL(ROUND(100.0 * (SUM(CASE WHEN country='mozambique' THEN total_funding ELSE 0 END) - LAG(SUM(CASE WHEN country='mozambique' THEN total_funding ELSE 0 END)) OVER (ORDER BY funding_year)) 
+        / NULLIF(LAG(SUM(CASE WHEN country='mozambique' THEN total_funding ELSE 0 END)) OVER (ORDER BY funding_year),0), 1),0) AS mozambique_pct_chg,
+	ISNULL(ROUND(100.0 * (SUM(CASE WHEN country='congo' THEN total_funding ELSE 0 END) - LAG(SUM(CASE WHEN country='congo' THEN total_funding ELSE 0 END)) OVER (ORDER BY funding_year)) 
+        / NULLIF(LAG(SUM(CASE WHEN country='congo' THEN total_funding ELSE 0 END)) OVER (ORDER BY funding_year),0), 1),0) AS congo_pct_chg,
+	ISNULL(ROUND(100.0 * (SUM(CASE WHEN country='afghanistan' THEN total_funding ELSE 0 END) - LAG(SUM(CASE WHEN country='afghanistan' THEN total_funding ELSE 0 END)) OVER (ORDER BY funding_year)) 
+        / NULLIF(LAG(SUM(CASE WHEN country='afghanistan' THEN total_funding ELSE 0 END)) OVER (ORDER BY funding_year),0), 1),0) AS afghanistan_pct_chg,
+	ISNULL(ROUND(100.0 * (SUM(CASE WHEN country='chad' THEN total_funding ELSE 0 END) - LAG(SUM(CASE WHEN country='chad' THEN total_funding ELSE 0 END)) OVER (ORDER BY funding_year)) 
+        / NULLIF(LAG(SUM(CASE WHEN country='chad' THEN total_funding ELSE 0 END)) OVER (ORDER BY funding_year),0), 1),0) AS chad_pct_chg
+FROM yearlyFunding
+GROUP BY funding_year
+ORDER BY funding_year ASC;
+
+-- Guarantee Funding by Top 5 Countries Over Time
+WITH uniqueProjects AS
+(
+	SELECT 
+		YEAR(board_approval_date) AS funding_year,
+		project_id,
+		country,
+		ROUND(MAX(principal_amount),0) AS total_principal_amount
+	FROM banking
+	WHERE 
+		financial_instrument = 'guarantee'
+		AND board_approval_date IS NOT NULL
+		AND YEAR(board_approval_date) BETWEEN 2011 AND 2025
+		AND country in ('pakistan','ghana','kenya','benin','cote d''ivoire')
+	GROUP BY 
+		YEAR(board_approval_date),
+		project_id,
+		country
+),
+yearlyFunding AS 
+(
+	SELECT 
+		funding_year,
+		country,
+		SUM(total_principal_amount) AS total_funding
+	FROM uniqueProjects
+	GROUP BY 
+		funding_year,
+		country
+)
+SELECT    
+	funding_year,
+	SUM(CASE WHEN country='pakistan' THEN total_funding ELSE 0 END) AS pakistan,
+	SUM(CASE WHEN country='ghana' THEN total_funding ELSE 0 END) AS ghana,
+	SUM(CASE WHEN country='kenya' THEN total_funding ELSE 0 END) AS kenya,
+	SUM(CASE WHEN country='benin' THEN total_funding ELSE 0 END) AS benin,
+	SUM(CASE WHEN country='cote d''ivoire' THEN total_funding ELSE 0 END) AS cote_divoire,
+	ISNULL(ROUND(100.0 * (SUM(CASE WHEN country='pakistan' THEN total_funding ELSE 0 END) - LAG(SUM(CASE WHEN country='pakistan' THEN total_funding ELSE 0 END)) OVER (ORDER BY funding_year)) 
+        / NULLIF(LAG(SUM(CASE WHEN country='pakistan' THEN total_funding ELSE 0 END)) OVER (ORDER BY funding_year),0), 1),0) AS pakistan_pct_chg,
+	ISNULL(ROUND(100.0 * (SUM(CASE WHEN country='ghana' THEN total_funding ELSE 0 END) - LAG(SUM(CASE WHEN country='ghana' THEN total_funding ELSE 0 END)) OVER (ORDER BY funding_year)) 
+        / NULLIF(LAG(SUM(CASE WHEN country='ghana' THEN total_funding ELSE 0 END)) OVER (ORDER BY funding_year),0), 1),0) AS ghana_pct_chg,
+	ISNULL(ROUND(100.0 * (SUM(CASE WHEN country='kenya' THEN total_funding ELSE 0 END) - LAG(SUM(CASE WHEN country='kenya' THEN total_funding ELSE 0 END)) OVER (ORDER BY funding_year)) 
+        / NULLIF(LAG(SUM(CASE WHEN country='kenya' THEN total_funding ELSE 0 END)) OVER (ORDER BY funding_year),0), 1),0) AS kenya_pct_chg,
+	ISNULL(ROUND(100.0 * (SUM(CASE WHEN country='benin' THEN total_funding ELSE 0 END) - LAG(SUM(CASE WHEN country='benin' THEN total_funding ELSE 0 END)) OVER (ORDER BY funding_year)) 
+        / NULLIF(LAG(SUM(CASE WHEN country='benin' THEN total_funding ELSE 0 END)) OVER (ORDER BY funding_year),0), 1),0) AS benin_pct_chg,
+	ISNULL(ROUND(100.0 * (SUM(CASE WHEN country='cote d''ivoire' THEN total_funding ELSE 0 END) - LAG(SUM(CASE WHEN country='cote d''ivoire' THEN total_funding ELSE 0 END)) OVER (ORDER BY funding_year)) 
+        / NULLIF(LAG(SUM(CASE WHEN country='cote d''ivoire' THEN total_funding ELSE 0 END)) OVER (ORDER BY funding_year),0), 1),0) AS cote_divoire_pct_chg
+FROM yearlyFunding
+GROUP BY funding_year
+ORDER BY funding_year ASC;
 
 ---------------------------------------------------------------------
 /* 3. What are the trends in disbursement and repayment over time? */
