@@ -185,7 +185,7 @@ ORDER BY total_principal_amount DESC;
 /* 2. Which regions or countries received the most IDA funding over time? */
 ----------------------------------------------------------------------------
 /* Use board approval date to shown IDA commitment to funding over time */
------ OVERALL
+----- OVERALL -----
 -- Overall Funding Commitment Over Time
 WITH yearlyFunding AS 
 (
@@ -197,13 +197,21 @@ WITH yearlyFunding AS
 		board_approval_date IS NOT NULL
 		AND YEAR(board_approval_date) BETWEEN 2011 AND 2025
 	GROUP BY YEAR(board_approval_date)
-)
+),
+final AS (
 SELECT 
 	funding_year,
 	total_funding,
 	ISNULL(ROUND(100.0 * (total_funding - LAG(total_funding) OVER (ORDER BY funding_year)) 
-        / NULLIF(LAG(total_funding) OVER (ORDER BY funding_year),0), 1),0) AS percent_change
+        / NULLIF(LAG(total_funding) OVER (ORDER BY funding_year),0), 1),0) AS yoy_pct_change,
+	ROUND(AVG(total_funding) OVER (ORDER BY funding_year ROWS BETWEEN 2 PRECEDING AND CURRENT ROW),0) AS moving_avg_3yr
 FROM yearlyFunding
+)
+SELECT 
+	*,
+	ISNULL(ROUND(100.0 * (moving_avg_3yr - LAG(moving_avg_3yr) OVER (ORDER BY funding_year)) / 
+			NULLIF(LAG(moving_avg_3yr) OVER (ORDER BY funding_year), 0),1),0) AS ma_pct_change
+FROM final
 ORDER BY funding_year ASC;
 
 -- Overall Credit Funding Over Time
@@ -215,16 +223,24 @@ WITH yearlyFunding AS
 	FROM banking
 	WHERE 
 		board_approval_date IS NOT NULL
-		AND YEAR(board_approval_date) BETWEEN 2011 AND 2025
 		AND financial_instrument='credit'
+		AND YEAR(board_approval_date) BETWEEN 2011 AND 2025
 	GROUP BY YEAR(board_approval_date)
-)
+),
+final AS (
 SELECT 
 	funding_year,
 	total_funding,
 	ISNULL(ROUND(100.0 * (total_funding - LAG(total_funding) OVER (ORDER BY funding_year)) 
-        / NULLIF(LAG(total_funding) OVER (ORDER BY funding_year),0), 1),0) AS percent_change
+        / NULLIF(LAG(total_funding) OVER (ORDER BY funding_year),0), 1),0) AS yoy_pct_change,
+	ROUND(AVG(total_funding) OVER (ORDER BY funding_year ROWS BETWEEN 2 PRECEDING AND CURRENT ROW),0) AS moving_avg_3yr
 FROM yearlyFunding
+)
+SELECT 
+	*,
+	ISNULL(ROUND(100.0 * (moving_avg_3yr - LAG(moving_avg_3yr) OVER (ORDER BY funding_year)) / 
+			NULLIF(LAG(moving_avg_3yr) OVER (ORDER BY funding_year), 0),1),0) AS ma_pct_change
+FROM final
 ORDER BY funding_year ASC;
 
 -- Overall Grant Funding Over Time
@@ -236,16 +252,24 @@ WITH yearlyFunding AS
 	FROM banking
 	WHERE 
 		board_approval_date IS NOT NULL
-		AND YEAR(board_approval_date) BETWEEN 2011 AND 2025
 		AND financial_instrument='grant'
+		AND YEAR(board_approval_date) BETWEEN 2011 AND 2025
 	GROUP BY YEAR(board_approval_date)
-)
+),
+final AS (
 SELECT 
 	funding_year,
 	total_funding,
 	ISNULL(ROUND(100.0 * (total_funding - LAG(total_funding) OVER (ORDER BY funding_year)) 
-        / NULLIF(LAG(total_funding) OVER (ORDER BY funding_year),0), 1),0) AS percent_change
+        / NULLIF(LAG(total_funding) OVER (ORDER BY funding_year),0), 1),0) AS yoy_pct_change,
+	ROUND(AVG(total_funding) OVER (ORDER BY funding_year ROWS BETWEEN 2 PRECEDING AND CURRENT ROW),0) AS moving_avg_3yr
 FROM yearlyFunding
+)
+SELECT 
+	*,
+	ISNULL(ROUND(100.0 * (moving_avg_3yr - LAG(moving_avg_3yr) OVER (ORDER BY funding_year)) / 
+			NULLIF(LAG(moving_avg_3yr) OVER (ORDER BY funding_year), 0),1),0) AS ma_pct_change
+FROM final
 ORDER BY funding_year ASC;
 
 -- Overall Guarantee Funding Over Time
@@ -257,20 +281,28 @@ WITH yearlyFunding AS
 	FROM banking
 	WHERE 
 		board_approval_date IS NOT NULL
-		AND YEAR(board_approval_date) BETWEEN 2011 AND 2025
 		AND financial_instrument='guarantee'
+		AND YEAR(board_approval_date) BETWEEN 2011 AND 2025
 	GROUP BY YEAR(board_approval_date)
-)
+),
+final AS (
 SELECT 
 	funding_year,
 	total_funding,
 	ISNULL(ROUND(100.0 * (total_funding - LAG(total_funding) OVER (ORDER BY funding_year)) 
-        / NULLIF(LAG(total_funding) OVER (ORDER BY funding_year),0), 1),0) AS percent_change
+        / NULLIF(LAG(total_funding) OVER (ORDER BY funding_year),0), 1),0) AS yoy_pct_change,
+	ROUND(AVG(total_funding) OVER (ORDER BY funding_year ROWS BETWEEN 2 PRECEDING AND CURRENT ROW),0) AS moving_avg_3yr
 FROM yearlyFunding
+)
+SELECT 
+	*,
+	ISNULL(ROUND(100.0 * (moving_avg_3yr - LAG(moving_avg_3yr) OVER (ORDER BY funding_year)) / 
+			NULLIF(LAG(moving_avg_3yr) OVER (ORDER BY funding_year), 0),1),0) AS ma_pct_change
+FROM final
 ORDER BY funding_year ASC;
 
 
------ REGION
+----- REGION -----
 -- Overall Funding by Region Over Time
 WITH yearlyFunding AS 
 (
@@ -422,7 +454,7 @@ FROM yearlyFunding
 GROUP BY funding_year
 ORDER BY funding_year ASC;
 
------ COUNTRY
+----- COUNTRY -----
 -- Overall Funding by Top 5 Countries Over Time
 WITH yearlyFunding AS 
 (
@@ -578,7 +610,7 @@ ORDER BY funding_year ASC;
 ---------------------------------------------------------------------
 ---------- TOTAL COUNTS ----------
 /* DISBURSEMENT */
------ OVERALL
+----- OVERALL -----
 -- Total Disbursed Amount by Financial Instruments
 WITH instrumentTotals AS (
 	SELECT 
@@ -595,7 +627,7 @@ FROM instrumentTotals
 ORDER BY total_disbursed_amount DESC;
 
 
------ REGION
+----- REGION -----
 -- Most Disbursed by Region
 WITH regionTotals AS
 (
@@ -667,7 +699,7 @@ SELECT
 FROM regionTotals
 ORDER BY total_disbursed_amount DESC;
 
------ COUNTRY
+----- COUNTRY -----
 -- Most Disbursed by Country
 WITH countryTotals AS
 (
@@ -740,7 +772,7 @@ FROM countryTotals
 ORDER BY total_disbursed_amount DESC;
 
 /* REPAYMENT */
------ OVERALL
+----- OVERALL -----
 -- Total Repaid Amount by Financial Instruments
 WITH instrumentTotals AS (
 	SELECT 
@@ -756,7 +788,7 @@ SELECT
 FROM instrumentTotals
 ORDER BY total_repaid_amount DESC;
 
------ REGION
+----- REGION -----
 -- Most Repaid by Region
 WITH regionTotals AS
 (
@@ -774,7 +806,7 @@ SELECT
 FROM regionTotals
 ORDER BY total_repaid_amount DESC;
 
------ COUNTRY
+----- COUNTRY -----
 -- Most Repaid by Country
 WITH countryTotals AS
 (
@@ -794,130 +826,155 @@ ORDER BY total_repaid_amount DESC;
 
 ---------- TRENDS OVER TIME ----------
 /* DISBURSEMENT */
------ OVERALL
+----- OVERALL -----
 -- Overall Disbursement Over Time 
-WITH uniqueProjects AS
-(
-	SELECT 
-		project_id,
-		YEAR(period_end_date) AS disbursement_year,
-		ROUND(MAX(disbursed_amount),0) AS total_disbursed_amount
-	FROM bankingall
-	GROUP BY 
-		project_id,
+WITH uniqueProjects AS (
+    SELECT 
+        project_id,
+        YEAR(period_end_date) AS disbursement_year,
+        ROUND(MAX(disbursed_amount), 0) AS total_disbursed_amount
+    FROM bankingall
+    WHERE period_end_date IS NOT NULL
+    GROUP BY 
+		project_id, 
 		YEAR(period_end_date)
 ),
-yearlyDisbursement AS 
-(
-	SELECT 
-		disbursement_year,
-		SUM(total_disbursed_amount) AS total_disbursement
-	FROM uniqueProjects
-	GROUP BY disbursement_year
+yearlyDisbursement AS (
+    SELECT 
+        disbursement_year,
+        SUM(total_disbursed_amount) AS total_disbursement
+    FROM uniqueProjects
+    GROUP BY disbursement_year
+),
+final AS (
+    SELECT 
+        disbursement_year,
+        total_disbursement,
+        ISNULL(ROUND(100.0 * (total_disbursement - LAG(total_disbursement) OVER (ORDER BY disbursement_year)) /
+                NULLIF(LAG(total_disbursement) OVER (ORDER BY disbursement_year), 0),1),0) AS yoy_pct_change,
+        ROUND(AVG(total_disbursement) OVER (ORDER BY disbursement_year ROWS BETWEEN 2 PRECEDING AND CURRENT ROW),0) AS moving_avg_3yr
+    FROM yearlyDisbursement
 )
 SELECT 
-	disbursement_year,
-	total_disbursement,
-	ISNULL(ROUND(100.0 * (total_disbursement - LAG(total_disbursement) OVER (ORDER BY disbursement_year)) 
-        / NULLIF(LAG(total_disbursement) OVER (ORDER BY disbursement_year),0), 1),0) AS percent_change
-FROM yearlyDisbursement
-ORDER BY disbursement_year ASC;
+    *,
+    ISNULL(ROUND(100.0 * (moving_avg_3yr - LAG(moving_avg_3yr) OVER (ORDER BY disbursement_year)) / 
+			NULLIF(LAG(moving_avg_3yr) OVER (ORDER BY disbursement_year), 0),1),0) AS ma_pct_change
+FROM final
+ORDER BY disbursement_year;
 
 -- Overall Credit Disbursement Over Time
-WITH uniqueProjects AS
-(
-	SELECT 
-		YEAR(period_end_date) AS disbursement_year,
-		project_id,
-		ROUND(MAX(disbursed_amount),0) AS total_disbursed_amount
-	FROM bankingall
-	WHERE period_end_date IS NOT NULL
-		AND YEAR(period_end_date) BETWEEN 2011 AND 2025
-		AND financial_instrument = 'credit'
-	GROUP BY 
-		YEAR(period_end_date),
-		project_id
+WITH uniqueProjects AS (
+    SELECT 
+        project_id,
+        YEAR(period_end_date) AS disbursement_year,
+        ROUND(MAX(disbursed_amount), 0) AS total_disbursed_amount
+    FROM bankingall
+    WHERE 
+		period_end_date IS NOT NULL
+		AND financial_instrument='credit'
+    GROUP BY 
+		project_id, 
+		YEAR(period_end_date)
 ),
-yearlyDisbursement AS 
-(
-	SELECT 
-		disbursement_year,
-		SUM(total_disbursed_amount) AS total_disbursement
-	FROM uniqueProjects
-	GROUP BY disbursement_year
+yearlyDisbursement AS (
+    SELECT 
+        disbursement_year,
+        SUM(total_disbursed_amount) AS total_disbursement
+    FROM uniqueProjects
+    GROUP BY disbursement_year
+),
+final AS (
+    SELECT 
+        disbursement_year,
+        total_disbursement,
+        ISNULL(ROUND(100.0 * (total_disbursement - LAG(total_disbursement) OVER (ORDER BY disbursement_year)) /
+                NULLIF(LAG(total_disbursement) OVER (ORDER BY disbursement_year), 0),1),0) AS yoy_pct_change,
+        ROUND(AVG(total_disbursement) OVER (ORDER BY disbursement_year ROWS BETWEEN 2 PRECEDING AND CURRENT ROW),0) AS moving_avg_3yr
+    FROM yearlyDisbursement
 )
 SELECT 
-	disbursement_year,
-	total_disbursement,
-	ISNULL(ROUND(100.0 * (total_disbursement - LAG(total_disbursement) OVER (ORDER BY disbursement_year)) 
-        / NULLIF(LAG(total_disbursement) OVER (ORDER BY disbursement_year),0), 1),0) AS percent_change
-FROM yearlyDisbursement
-ORDER BY disbursement_year ASC;
+    *,
+    ISNULL(ROUND(100.0 * (moving_avg_3yr - LAG(moving_avg_3yr) OVER (ORDER BY disbursement_year)) / 
+			NULLIF(LAG(moving_avg_3yr) OVER (ORDER BY disbursement_year), 0),1),0) AS ma_pct_change
+FROM final
+ORDER BY disbursement_year;
 
 -- Overall Grant Disbursement Over Time
-WITH uniqueProjects AS
-(
-	SELECT 
-		YEAR(period_end_date) AS disbursement_year,
-		project_id,
-		ROUND(MAX(disbursed_amount),0) AS total_disbursed_amount
-	FROM bankingall
-	WHERE period_end_date IS NOT NULL
-		AND YEAR(period_end_date) BETWEEN 2011 AND 2025
-		AND financial_instrument = 'grant'
-	GROUP BY 
-		YEAR(period_end_date),
-		project_id
+WITH uniqueProjects AS (
+    SELECT 
+        project_id,
+        YEAR(period_end_date) AS disbursement_year,
+        ROUND(MAX(disbursed_amount), 0) AS total_disbursed_amount
+    FROM bankingall
+    WHERE 
+		period_end_date IS NOT NULL
+		AND financial_instrument='grant'
+    GROUP BY 
+		project_id, 
+		YEAR(period_end_date)
 ),
-yearlyDisbursement AS 
-(
-	SELECT 
-		disbursement_year,
-		SUM(total_disbursed_amount) AS total_disbursement
-	FROM uniqueProjects
-	GROUP BY disbursement_year
+yearlyDisbursement AS (
+    SELECT 
+        disbursement_year,
+        SUM(total_disbursed_amount) AS total_disbursement
+    FROM uniqueProjects
+    GROUP BY disbursement_year
+),
+final AS (
+    SELECT 
+        disbursement_year,
+        total_disbursement,
+        ISNULL(ROUND(100.0 * (total_disbursement - LAG(total_disbursement) OVER (ORDER BY disbursement_year)) /
+                NULLIF(LAG(total_disbursement) OVER (ORDER BY disbursement_year), 0),1),0) AS yoy_pct_change,
+        ROUND(AVG(total_disbursement) OVER (ORDER BY disbursement_year ROWS BETWEEN 2 PRECEDING AND CURRENT ROW),0) AS moving_avg_3yr
+    FROM yearlyDisbursement
 )
 SELECT 
-	disbursement_year,
-	total_disbursement,
-	ISNULL(ROUND(100.0 * (total_disbursement - LAG(total_disbursement) OVER (ORDER BY disbursement_year)) 
-        / NULLIF(LAG(total_disbursement) OVER (ORDER BY disbursement_year),0), 1),0) AS percent_change
-FROM yearlyDisbursement
-ORDER BY disbursement_year ASC;
+    *,
+    ISNULL(ROUND(100.0 * (moving_avg_3yr - LAG(moving_avg_3yr) OVER (ORDER BY disbursement_year)) / 
+			NULLIF(LAG(moving_avg_3yr) OVER (ORDER BY disbursement_year), 0),1),0) AS ma_pct_change
+FROM final
+ORDER BY disbursement_year;
 
 -- Overall Guarantee Disbursement Over Time
-WITH uniqueProjects AS
-(
-	SELECT 
-		YEAR(period_end_date) AS disbursement_year,
-		project_id,
-		ROUND(MAX(disbursed_amount),0) AS total_disbursed_amount
-	FROM bankingall
-	WHERE period_end_date IS NOT NULL
-		AND YEAR(period_end_date) BETWEEN 2011 AND 2025
-		AND financial_instrument = 'guarantee'
-	GROUP BY 
-		YEAR(period_end_date),
-		project_id
+WITH uniqueProjects AS (
+    SELECT 
+        project_id,
+        YEAR(period_end_date) AS disbursement_year,
+        ROUND(MAX(disbursed_amount), 0) AS total_disbursed_amount
+    FROM bankingall
+    WHERE 
+		period_end_date IS NOT NULL
+		AND financial_instrument='grant'
+    GROUP BY 
+		project_id, 
+		YEAR(period_end_date)
 ),
-yearlyDisbursement AS 
-(
-	SELECT 
-		disbursement_year,
-		SUM(total_disbursed_amount) AS total_disbursement
-	FROM uniqueProjects
-	GROUP BY disbursement_year
+yearlyDisbursement AS (
+    SELECT 
+        disbursement_year,
+        SUM(total_disbursed_amount) AS total_disbursement
+    FROM uniqueProjects
+    GROUP BY disbursement_year
+),
+final AS (
+    SELECT 
+        disbursement_year,
+        total_disbursement,
+        ISNULL(ROUND(100.0 * (total_disbursement - LAG(total_disbursement) OVER (ORDER BY disbursement_year)) /
+                NULLIF(LAG(total_disbursement) OVER (ORDER BY disbursement_year), 0),1),0) AS yoy_pct_change,
+        ROUND(AVG(total_disbursement) OVER (ORDER BY disbursement_year ROWS BETWEEN 2 PRECEDING AND CURRENT ROW),0) AS moving_avg_3yr
+    FROM yearlyDisbursement
 )
 SELECT 
-	disbursement_year,
-	total_disbursement,
-	ISNULL(ROUND(100.0 * (total_disbursement - LAG(total_disbursement) OVER (ORDER BY disbursement_year)) 
-        / NULLIF(LAG(total_disbursement) OVER (ORDER BY disbursement_year),0), 1),0) AS percent_change
-FROM yearlyDisbursement
-ORDER BY disbursement_year ASC;
+    *,
+    ISNULL(ROUND(100.0 * (moving_avg_3yr - LAG(moving_avg_3yr) OVER (ORDER BY disbursement_year)) / 
+			NULLIF(LAG(moving_avg_3yr) OVER (ORDER BY disbursement_year), 0),1),0) AS ma_pct_change
+FROM final
+ORDER BY disbursement_year;
 
 
------ REGION
+----- REGION -----
 -- Disbursement by Region Over Time
 WITH uniqueProjects AS
 (
@@ -1117,7 +1174,7 @@ FROM yearlyDisbursement
 GROUP BY disbursement_year
 ORDER BY disbursement_year ASC;
 
------ COUNTRY
+----- COUNTRY -----
 -- Disbursement by Top 5 Countries Over Time
 WITH uniqueProjects AS
 (
@@ -1321,7 +1378,7 @@ GROUP BY disbursement_year
 ORDER BY disbursement_year ASC;
 
 /* REPAYMENT */
------ OVERALL
+----- OVERALL -----
 -- Overall Repayment Over Time 
 WITH uniqueProjects AS
 (
@@ -1381,7 +1438,7 @@ SELECT
 FROM yearlyrepayment
 ORDER BY repayment_year ASC;
 
------ REGION
+----- REGION -----
 -- Repayment by Region Over Time
 WITH uniqueProjects AS
 (
@@ -1431,7 +1488,7 @@ FROM yearlyrepayment
 GROUP BY repayment_year
 ORDER BY repayment_year ASC;
 
------ COUNTRY
+----- COUNTRY -----
 -- Repayment by Top 5 Countries Over Time
 WITH uniqueProjects AS
 (
