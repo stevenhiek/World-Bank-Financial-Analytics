@@ -354,6 +354,11 @@ SET service_charge_rate = 0
 WHERE service_charge_rate IS NULL
   AND (credit_number LIKE '%IDAG%' OR credit_number LIKE '%IDAB%');
 
+----- Disbursed Amount
+UPDATE banking
+SET disbursed_amount=0
+WHERE disbursed_amount < 1
+
 ----- First Repayment Date
 WITH firstRepaymentMax AS (
   SELECT 
@@ -475,9 +480,6 @@ WHERE
 	board_approval_date IS NULL AND
 	agreement_signing_date IS NULL;
 
--- Keep Only Board Approval Dates Between 2011 and 2025
-DELETE FROM banking
-WHERE YEAR(board_approval_date) NOT BETWEEN 2011 and 2025;
 
 -- Drop other credit status group
 SELECT
@@ -533,43 +535,19 @@ SET financial_instrument = CASE
 	END;
 
 
+
 /* CREATE SAVE STATE TABLE FOR ALL CHANGES UP TO THIS POINT */
 SELECT * INTO bankingall
 FROM banking
 
-/* CREATE CUMULATIVE TABLE FOR YEARS 2011 to 2025 FOR TREND ANALYSIS */
+-- Keep Only Board Approval Dates Between 2011 and 2025
+DELETE FROM banking
+WHERE YEAR(board_approval_date) NOT BETWEEN 2011 and 2025;
+
+/* CREATE BACKUP TABLE FOR BOARD APPROVAL YEARS 2011 to 2025*/
 SELECT * INTO banking2011to2025
 FROM banking
 
-/* CREATE UNIQUE PROJECT ID TABLE FOR YEARS 2011 to 2025 BY LATEST END PERIOD DATE */
-WITH ranked_projects AS (
-    SELECT *,
-        ROW_NUMBER() OVER (
-            PARTITION BY project_id
-            ORDER BY 
-                period_end_date DESC,
-                board_approval_date DESC,
-                latest_disbursement_date DESC,
-                last_repayment_date DESC
-        ) AS rn
-    FROM banking2011to2025nd
-)
-DELETE FROM ranked_projects
-WHERE rn > 1;
 
-/* MAKE BANKING TABLE UNIQUE PROJECT ID BY LATEST END PERIOD DATE */
--- Keep Only Latest End Period of Project ID, sorted by period_end_date DESC,board_approval_date DESC,latest_disbursement_date DESC, last_repayment_date DESC
-WITH ranked_projects AS (
-    SELECT *,
-        ROW_NUMBER() OVER (
-            PARTITION BY project_id
-            ORDER BY 
-                period_end_date DESC,
-                board_approval_date DESC,
-                latest_disbursement_date DESC,
-                last_repayment_date DESC
-        ) AS rn
-    FROM banking
-)
-DELETE FROM ranked_projects
-WHERE rn > 1;
+
+
