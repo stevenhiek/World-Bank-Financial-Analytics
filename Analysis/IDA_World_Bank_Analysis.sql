@@ -43,6 +43,7 @@ SELECT
 	ROUND(100.0 * total_principal_amount / SUM(total_principal_amount) OVER (), 2) AS percent_of_total
 FROM instrumentTotals
 ORDER BY total_principal_amount DESC;
+
 -- Avg Principal Amount by Financial Instruments
 WITH uniqueProjects AS (
 	SELECT
@@ -66,6 +67,7 @@ SELECT
 	avg_principal_amount
 FROM instrumentTotals
 ORDER BY avg_principal_amount DESC;
+
 
 ----- REGION
 -- Most Funded by Region
@@ -94,6 +96,7 @@ SELECT
 	ROUND(100.0 * total_principal_amount / SUM(total_principal_amount) OVER(),2) AS percent_total
 FROM regionTotals
 ORDER BY total_principal_amount DESC;
+
 -- Avg Funded by Region
 WITH uniqueProjects AS (
 	SELECT
@@ -119,6 +122,7 @@ SELECT
 	avg_principal_amount
 FROM regionTotals
 ORDER BY avg_principal_amount DESC;
+
 
 -- Most Credit Funded by Region
 WITH uniqueProjects AS (
@@ -147,6 +151,7 @@ SELECT
 	ROUND(100.0 * total_principal_amount / SUM(total_principal_amount) OVER(),2) AS percent_total
 FROM regionTotals
 ORDER BY total_principal_amount DESC;
+
 -- Avg Credit Funded by Region
 WITH uniqueProjects AS (
 	SELECT
@@ -173,6 +178,7 @@ SELECT
 	avg_principal_amount
 FROM regionTotals
 ORDER BY avg_principal_amount DESC;
+
 
 -- Most Grant Funded by Region
 WITH uniqueProjects AS (
@@ -201,6 +207,7 @@ SELECT
 	ROUND(100.0 * total_principal_amount / SUM(total_principal_amount) OVER(),2) AS percent_total
 FROM regionTotals
 ORDER BY total_principal_amount DESC;
+
 -- Avg Grant Funded by Region
 WITH uniqueProjects AS (
 	SELECT
@@ -227,6 +234,7 @@ SELECT
 	avg_principal_amount
 FROM regionTotals
 ORDER BY avg_principal_amount DESC;
+
 
 -- Most Guarantee Funded by Region
 WITH uniqueProjects AS (
@@ -255,6 +263,7 @@ SELECT
 	ROUND(100.0 * total_principal_amount / SUM(total_principal_amount) OVER(),2) AS percent_total
 FROM regionTotals
 ORDER BY total_principal_amount DESC;
+
 -- Avg Guarantee Funded by Region
 WITH uniqueProjects AS (
 	SELECT
@@ -281,6 +290,7 @@ SELECT
 	avg_principal_amount
 FROM regionTotals
 ORDER BY avg_principal_amount DESC;
+
 
 ----- COUNTRY
 -- Most Funded by Country
@@ -309,6 +319,7 @@ SELECT
 	ROUND(100.0 * total_principal_amount / SUM(total_principal_amount) OVER(),2) AS percent_total
 FROM countryTotals
 ORDER BY total_principal_amount DESC;
+
 -- Top Avg Funded by Country
 WITH uniqueProjects AS (
 	SELECT
@@ -334,6 +345,7 @@ SELECT
 	avg_principal_amount
 FROM countryTotals
 ORDER BY avg_principal_amount DESC;
+
 
 -- Most Credits Funded by Country
 WITH uniqueProjects AS (
@@ -362,6 +374,7 @@ SELECT
 	ROUND(100.0 * total_principal_amount / SUM(total_principal_amount) OVER(),2) AS percent_total
 FROM countryTotals
 ORDER BY total_principal_amount DESC;
+
 -- Top Avg Credits Funded by Country
 WITH uniqueProjects AS (
 	SELECT
@@ -388,6 +401,7 @@ SELECT
 	avg_principal_amount
 FROM countryTotals
 ORDER BY avg_principal_amount DESC;
+
 
 -- Most Grant Funded by Country
 WITH uniqueProjects AS (
@@ -416,6 +430,7 @@ SELECT
 	ROUND(100.0 * total_principal_amount / SUM(total_principal_amount) OVER(),2) AS percent_total
 FROM countryTotals
 ORDER BY total_principal_amount DESC;
+
 -- Top Avg Grant Funded by Country
 WITH uniqueProjects AS (
 	SELECT
@@ -442,6 +457,7 @@ SELECT
 	avg_principal_amount
 FROM countryTotals
 ORDER BY avg_principal_amount DESC;
+
 
 -- Most Guarantee Funded by Country
 WITH uniqueProjects AS (
@@ -470,6 +486,7 @@ SELECT
 	ROUND(100.0 * total_principal_amount / SUM(total_principal_amount) OVER(),2) AS percent_total
 FROM countryTotals
 ORDER BY total_principal_amount DESC;
+
 -- Top Avg Guarantee Funded by Country
 WITH uniqueProjects AS (
 	SELECT
@@ -497,6 +514,7 @@ SELECT
 FROM countryTotals
 ORDER BY avg_principal_amount DESC;
 
+
 ----------------------------------------------------------------------------
 /* 2. Which regions or countries received the most IDA funding over time? */
 ----------------------------------------------------------------------------
@@ -512,7 +530,7 @@ WITH uniqueProjects AS (
 	WHERE 
 		board_approval_date IS NOT NULL
 		AND YEAR(board_approval_date) BETWEEN 2011 and 2025
-	GROUP BY project_id,board_approval_date
+	GROUP BY project_id
 ),
 yearlyFunding AS 
 (
@@ -537,6 +555,7 @@ SELECT
 			NULLIF(LAG(moving_avg_3yr) OVER (ORDER BY funding_year), 0),1),0) AS ma_pct_change
 FROM final
 ORDER BY funding_year ASC;
+
 
 -- Overall Credit Funding Over Time
 WITH uniqueProjects AS (
@@ -549,7 +568,7 @@ WITH uniqueProjects AS (
 		board_approval_date IS NOT NULL
 		AND YEAR(board_approval_date) BETWEEN 2011 AND 2025
 		AND financial_instrument='credit'
-	GROUP BY project_id,board_approval_date
+	GROUP BY project_id
 ),
 yearlyFunding AS 
 (
@@ -574,6 +593,7 @@ SELECT
 			NULLIF(LAG(moving_avg_3yr) OVER (ORDER BY funding_year), 0),1),0) AS ma_pct_change
 FROM final
 ORDER BY funding_year ASC;
+
 
 -- Overall Grant Funding Over Time
 WITH uniqueProjects AS (
@@ -586,7 +606,7 @@ WITH uniqueProjects AS (
 		board_approval_date IS NOT NULL
 		AND YEAR(board_approval_date) BETWEEN 2011 AND 2025
 		AND financial_instrument='grant'
-	GROUP BY project_id,board_approval_date
+	GROUP BY project_id
 ),
 yearlyFunding AS 
 (
@@ -612,42 +632,55 @@ SELECT
 FROM final
 ORDER BY funding_year ASC;
 
+
 -- Overall Guarantee Funding Over Time
-WITH uniqueProjects AS (
+WITH year_range AS (
+    SELECT YEAR FROM (VALUES 
+        (2011),(2012),(2013),(2014),(2015),(2016),(2017),(2018),
+        (2019),(2020),(2021),(2022),(2023),(2024),(2025)
+    ) AS y(YEAR)
+),
+uniqueProjects AS (
 	SELECT
 		project_id,
-		MAX(board_approval_date) AS board_approval_date,
+		YEAR(MAX(board_approval_date)) AS funding_year,
 		ROUND(MAX(principal_amount), 0) AS total_principal_amount
 	FROM banking2011to2025
 	WHERE 
 		board_approval_date IS NOT NULL
 		AND YEAR(board_approval_date) BETWEEN 2011 AND 2025
-		AND financial_instrument='guarantee'
-	GROUP BY project_id,board_approval_date
+		AND financial_instrument = 'guarantee'
+	GROUP BY project_id
 ),
-yearlyFunding AS 
-(
+yearlyFunding AS (
 	SELECT 
-		YEAR(board_approval_date) AS funding_year,
-		ROUND(SUM(total_principal_amount),0) AS total_funding
+		funding_year,
+		SUM(total_principal_amount) AS total_funding
 	FROM uniqueProjects
-	GROUP BY YEAR(board_approval_date)
+	GROUP BY funding_year
+),
+filledFunding AS (
+	SELECT 
+		y.YEAR AS funding_year,
+		ISNULL(f.total_funding, 0) AS total_funding
+	FROM year_range y
+	LEFT JOIN yearlyFunding f ON y.YEAR = f.funding_year
 ),
 final AS (
-SELECT 
-	funding_year,
-	total_funding,
-	ISNULL(ROUND(100.0 * (total_funding - LAG(total_funding) OVER (ORDER BY funding_year)) 
-        / NULLIF(LAG(total_funding) OVER (ORDER BY funding_year),0), 1),0) AS yoy_pct_change,
-	ROUND(AVG(total_funding) OVER (ORDER BY funding_year ROWS BETWEEN 2 PRECEDING AND CURRENT ROW),0) AS moving_avg_3yr
-FROM yearlyFunding
+	SELECT 
+		funding_year,
+		total_funding,
+		ISNULL(ROUND(100.0 * (total_funding - LAG(total_funding) OVER (ORDER BY funding_year)) / 
+			NULLIF(LAG(total_funding) OVER (ORDER BY funding_year), 0), 1), 0) AS yoy_pct_change,
+		ROUND(AVG(total_funding) OVER (ORDER BY funding_year ROWS BETWEEN 2 PRECEDING AND CURRENT ROW), 0) AS moving_avg_3yr
+	FROM filledFunding
 )
 SELECT 
 	*,
 	ISNULL(ROUND(100.0 * (moving_avg_3yr - LAG(moving_avg_3yr) OVER (ORDER BY funding_year)) / 
-			NULLIF(LAG(moving_avg_3yr) OVER (ORDER BY funding_year), 0),1),0) AS ma_pct_change
+		NULLIF(LAG(moving_avg_3yr) OVER (ORDER BY funding_year), 0), 1), 0) AS ma_pct_change
 FROM final
-ORDER BY funding_year ASC;
+ORDER BY funding_year;
 
 
 ----- REGION -----
@@ -1708,6 +1741,7 @@ SELECT
 FROM regionTotals
 ORDER BY avg_disbursed_amount DESC;
 
+
 -- Most Credit Disbursed by Region
 WITH uniqueProjects AS (
 	SELECT
@@ -1763,6 +1797,7 @@ SELECT
 FROM regionTotals
 ORDER BY avg_disbursed_amount DESC;
 
+
 -- Most Grant Disbursed by Region
 WITH uniqueProjects AS (
 	SELECT
@@ -1817,6 +1852,7 @@ SELECT
 	avg_disbursed_amount
 FROM regionTotals
 ORDER BY avg_disbursed_amount DESC
+
 
 -- Most Guarantee Disbursed by Region
 WITH uniqueProjects AS (
@@ -1957,6 +1993,7 @@ SELECT
 FROM countryTotals
 ORDER BY total_disbursed_amount DESC;
 
+
 -- Top Avg Credits Disbursed by Country
 WITH uniqueProjects AS (
 	SELECT
@@ -2096,6 +2133,7 @@ SELECT
 FROM countryTotals
 ORDER BY avg_disbursed_amount DESC;
 
+
 /* REPAYMENT */
 ----- OVERALL -----
 -- Total Repaid Amount by Financial Instruments
@@ -2146,6 +2184,7 @@ SELECT
 	avg_repaid_amount
 FROM instrumentTotals
 ORDER BY avg_repaid_amount DESC;
+
 
 ----- REGION -----
 -- Most Repaid by Region
@@ -2201,6 +2240,7 @@ SELECT
 FROM regionTotals
 ORDER BY avg_repaid_amount DESC;
 
+
 ----- COUNTRY -----
 -- Most Repaid by Country
 WITH uniqueProjects AS (
@@ -2255,6 +2295,7 @@ SELECT
 FROM countryTotals
 ORDER BY avg_repaid_amount DESC;
 
+
 ---------- TRENDS OVER TIME ----------
 /* DISBURSEMENT */
 ----- OVERALL -----
@@ -2293,6 +2334,7 @@ SELECT
 FROM final
 ORDER BY disbursement_year;
 
+
 -- Overall Credit Disbursement Over Time
 WITH uniqueProjects AS (
     SELECT 
@@ -2330,6 +2372,7 @@ SELECT
 FROM final
 ORDER BY disbursement_year;
 
+
 -- Overall Grant Disbursement Over Time
 WITH uniqueProjects AS (
     SELECT 
@@ -2366,6 +2409,7 @@ SELECT
 			NULLIF(LAG(moving_avg_3yr) OVER (ORDER BY disbursement_year), 0),1),0) AS ma_pct_change
 FROM final
 ORDER BY disbursement_year;
+
 
 -- Overall Guarantee Disbursement Over Time
 WITH uniqueProjects AS (
@@ -2452,7 +2496,6 @@ final AS (
 SELECT *
 FROM final
 ORDER BY disbursement_year;
-
 
 ----- Moving Average 3 Year Disbursement
 WITH uniqueProjects AS (
@@ -2819,6 +2862,7 @@ SELECT
 FROM with_ma_change
 GROUP BY disbursement_year
 ORDER BY disbursement_year;
+
 
 ----- COUNTRY -----
 -- Disbursement by Top 5 Countries Over Time
@@ -3577,7 +3621,6 @@ SELECT
 FROM final
 ORDER BY repayment_year;
 
-
 ----- Moving Average 3 Year Repayment
 WITH uniqueProjects AS (
 	SELECT 
@@ -3662,6 +3705,7 @@ SELECT
 	CAST(ROUND(AVG(1.0 * DATEDIFF(DAY, board_approval_date, latest_closed_date) / 365.0), 1) AS DECIMAL(10,1))  AS avg_yr
 FROM uniqueProjects;
 
+
 -- Project Lifecycle by Financial Instrument
 WITH uniqueProjects AS 
 (
@@ -3682,6 +3726,7 @@ SELECT
 FROM uniqueProjects
 GROUP BY financial_instrument
 ORDER BY CAST(ROUND(AVG(1.0 * DATEDIFF(DAY, board_approval_date, latest_closed_date) / 365.0), 1) AS DECIMAL(10,1)) DESC;
+
 
 ----- REGION -----
 -- Project Lifecycle by Region
@@ -3708,6 +3753,7 @@ WHERE
 GROUP BY region
 ORDER BY CAST(ROUND(AVG(1.0 * DATEDIFF(DAY, board_approval_date, latest_closed_date) / 365.0), 1) AS DECIMAL(10,1)) DESC;
 
+
 -- Credit Project Lifecycle by Region
 WITH uniqueProjects AS 
 (
@@ -3729,6 +3775,7 @@ SELECT
 FROM uniqueProjects
 GROUP BY region
 ORDER BY CAST(ROUND(AVG(1.0 * DATEDIFF(DAY, board_approval_date, latest_closed_date) / 365.0), 1) AS DECIMAL(10,1)) DESC;
+
 
 -- Grant Project Lifecycle by Region
 WITH uniqueProjects AS 
@@ -3752,6 +3799,7 @@ FROM uniqueProjects
 GROUP BY region
 ORDER BY CAST(ROUND(AVG(1.0 * DATEDIFF(DAY, board_approval_date, latest_closed_date) / 365.0), 1) AS DECIMAL(10,1)) DESC;
 
+
 -- Guarantee Project Lifecycle by Region
 WITH uniqueProjects AS 
 (
@@ -3773,6 +3821,7 @@ SELECT
 FROM uniqueProjects
 GROUP BY region
 ORDER BY CAST(ROUND(AVG(1.0 * DATEDIFF(DAY, board_approval_date, latest_closed_date) / 365.0), 1) AS DECIMAL(10,1)) DESC;
+
 
 ----- COUNTRY -----
 ----- TOP 5
@@ -3797,6 +3846,7 @@ FROM uniqueProjects
 GROUP BY country
 ORDER BY CAST(ROUND(AVG(1.0 * DATEDIFF(DAY, board_approval_date, latest_closed_date) / 365.0), 1) AS DECIMAL(10,1))  DESC;
 
+
 -- Top 5 Credit Project Lifecycle by Country
 WITH uniqueProjects AS 
 (
@@ -3818,6 +3868,7 @@ SELECT
 FROM uniqueProjects
 GROUP BY country
 ORDER BY CAST(ROUND(AVG(1.0 * DATEDIFF(DAY, board_approval_date, latest_closed_date) / 365.0), 1) AS DECIMAL(10,1)) DESC;
+
 
 -- Top 5 Grant Project Lifecycle by Country
 WITH uniqueProjects AS 
@@ -3841,6 +3892,7 @@ FROM uniqueProjects
 GROUP BY country
 ORDER BY CAST(ROUND(AVG(1.0 * DATEDIFF(DAY, board_approval_date, latest_closed_date) / 365.0), 1) AS DECIMAL(10,1)) DESC;
 
+
 -- Top 5 Guarantee Project Lifecycle by Country
 WITH uniqueProjects AS 
 (
@@ -3862,6 +3914,7 @@ SELECT
 FROM uniqueProjects
 GROUP BY country
 ORDER BY CAST(ROUND(AVG(1.0 * DATEDIFF(DAY, board_approval_date, latest_closed_date) / 365.0), 1) AS DECIMAL(10,1)) DESC;
+
 
 ----- BOTTOM 5
 -- Bottom 5 Project Lifecycle by Country
@@ -3888,6 +3941,7 @@ WHERE
 GROUP BY country
 ORDER BY CAST(ROUND(AVG(1.0 * DATEDIFF(DAY, board_approval_date, latest_closed_date) / 365.0), 1) AS DECIMAL(10,1));
 
+
 -- Bottom 5 Credit Project Lifecycle by Country
 WITH uniqueProjects AS 
 (
@@ -3910,6 +3964,7 @@ FROM uniqueProjects
 GROUP BY country
 ORDER BY CAST(ROUND(AVG(1.0 * DATEDIFF(DAY, board_approval_date, latest_closed_date) / 365.0), 1) AS DECIMAL(10,1));
 
+
 -- Bottom 5 Grant Project Lifecycle by Country
 WITH uniqueProjects AS 
 (
@@ -3931,6 +3986,7 @@ SELECT
 FROM uniqueProjects
 GROUP BY country
 ORDER BY CAST(ROUND(AVG(1.0 * DATEDIFF(DAY, board_approval_date, latest_closed_date) / 365.0), 1) AS DECIMAL(10,1));
+
 
 -- Bottom 5 Guarantee Project Lifecycle by Country
 WITH uniqueProjects AS 
@@ -3976,6 +4032,7 @@ SELECT
 	ROUND(AVG(ISNULL(disbursed_amount / NULLIF(principal_amount ,0),0)),2) AS disbursement_to_commitment_ratio
 FROM uniqueProjects;
 
+
 ----- REGION -----
 -- Disbursement to Commitment Ratio by Region
 WITH uniqueProjects AS
@@ -3996,6 +4053,7 @@ SELECT
 	ROUND(AVG(ISNULL(disbursed_amount / NULLIF(principal_amount ,0),0)),2) AS disbursement_to_commitment_ratio
 FROM uniqueProjects
 GROUP BY region;
+
 
 -- Credits Disbursement to Commitment Ratio by Region
 WITH uniqueProjects AS
@@ -4018,6 +4076,7 @@ SELECT
 FROM uniqueProjects
 GROUP BY region;
 
+
 -- Grants Disbursement to Commitment Ratio by Region
 WITH uniqueProjects AS
 (
@@ -4038,6 +4097,7 @@ SELECT
 	ROUND(AVG(ISNULL(disbursed_amount / NULLIF(principal_amount ,0),0)),2) AS disbursement_to_commitment_ratio
 FROM uniqueProjects
 GROUP BY region;
+
 
 -- Guarantees Disbursement to Commitment Ratio by Region
 WITH uniqueProjects AS
@@ -4083,6 +4143,7 @@ FROM uniqueProjects
 GROUP BY country
 ORDER BY ROUND(AVG(ISNULL(disbursed_amount / NULLIF(principal_amount ,0),0)),2) DESC;
 
+
 -- Bottom Disbursement to Commitment Ratio
 WITH uniqueProjects AS
 (
@@ -4123,6 +4184,7 @@ WITH uniqueProjects AS
 SELECT 
 	ROUND(AVG(ISNULL(repaid_amount/NULLIF(principal_amount ,0),0)),2) AS repayment_to_commitment_ratio
 FROM uniqueProjects;
+
 
 ----- REGION -----
 -- Credits Repayment to Commitment Ratio by Region
@@ -4169,6 +4231,7 @@ SELECT
 FROM uniqueProjects
 GROUP BY country
 ORDER BY ROUND(AVG(ISNULL(repaid_amount/NULLIF(principal_amount ,0),0)),2) DESC;
+
 
 -- Bottom Repayment to Commitment Ratio
 WITH uniqueProjects AS
