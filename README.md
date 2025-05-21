@@ -65,6 +65,7 @@ Below is the overview page from the Tableau dashboard and more examples are incl
 ![IDA_world_bank_tableau_top_performance](https://github.com/stevenhiek/World-Bank-Financial-Analytics/blob/main/Charts%20%26%20Graphs/world_bank_financial_analytics_top_performance.png)
 
 ## Recommendations
+Based on the uncovered insights, the following recommendations have been provided:
 * While projects have a high overall disbursement ratio of 90%, there remains a **need to strengthen monitoring efforts to ensure that disbursed funds translate into measurable outcomes and tangible impact.**
 * Despite receiving the second highest total funding of $72 billion, the South Asia region exhibits the lowest disbursement ratio (84%) and the highest cancellation ratio (13%) among all regions, highlighting the **need to enhance stakeholder engagement during project planning, strengthen project design and targeting, improve risk assessment, and support capacity building in implementing agencies in the South Asia region.**
 * Bangladesh is the top-performing country in the South Asia region, with a disbursement ratio of 89% and a cancellation ratio of 10%, **making Bangladesh a potential model for best practices and locally relevant project implementation to inform improvements across the South Asia region.**
