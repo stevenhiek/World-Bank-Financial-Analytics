@@ -42,6 +42,15 @@ max_cancelled_project AS (
     FROM banking
 	WHERE board_approval_date IS NOT NULL
 	GROUP BY project_id,financial_instrument
+),
+max_borrower_project AS (
+	SELECT 
+        project_id,
+		financial_instrument,
+        MAX(borrower_obligation_amount) borrower_obligation_amount
+    FROM banking
+	WHERE board_approval_date IS NOT NULL
+	GROUP BY project_id,financial_instrument
 )
 SELECT
 	b.project_id,
@@ -52,12 +61,13 @@ SELECT
 	MAX(d.disbursed_amount) disbursed_amount,
 	MAX(r.repaid_amount) repaid_amount,
 	MAX(c.cancelled_amount) cancelled_amount,
+	MAX(o.borrower_obligation_amount) borrower_obligation_amount,
 	MAX(b.period_end_date) period_end_date,
 	MIN(b.board_approval_date) board_approval_date,
 	MAX(b.latest_closed_date) latest_closed_date,
 	MAX(b.latest_disbursement_date) latest_disbursement_date,
 	MAX(b.last_repayment_date) last_repayment_date
-INTO tableauBankingUnique
+INTO tableauBankingUnique2
 FROM banking b
 JOIN max_principal_project p
 	ON b.project_id=p.project_id AND b.financial_instrument=p.financial_instrument
@@ -67,6 +77,8 @@ JOIN max_repaid_project r
 	ON b.project_id=r.project_id AND b.financial_instrument=r.financial_instrument
 JOIN max_cancelled_project c
 	ON b.project_id=c.project_id AND b.financial_instrument=c.financial_instrument
+JOIN max_borrower_project o
+	ON b.project_id=o.project_id AND b.financial_instrument=o.financial_instrument
 WHERE board_approval_date IS NOT NULL
 GROUP BY 
 	b.project_id,
