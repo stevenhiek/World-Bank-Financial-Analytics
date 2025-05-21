@@ -15,25 +15,27 @@ Insights and recommendations are provided on the following key areas:
 
 * **Project Performance** – A review of performance in regions and countries, highlighting those with highest and lowest levels of funding, disbursements, repayments, and cancellations.
 
-The SQL queries used to inspect and clean the data for this analysis can be found here [link]( https://github.com/stevenhiek/World-Bank-Financial-Analytics/tree/main/Preprocessing).
+The SQL queries used to inspect and clean the data for this analysis can be found here [link](https://github.com/stevenhiek/World-Bank-Financial-Analytics/tree/main/Preprocessing).
 
-The SQL queries answering various business questions can be found here [link]( https://github.com/stevenhiek/World-Bank-Financial-Analytics/tree/main/Analysis).
+The SQL queries answering various business questions can be found here [link](https://github.com/stevenhiek/World-Bank-Financial-Analytics/tree/main/Analysis).
 
 An interactive Tableau dashboard used to report and explore financial trends can be found here [link](https://public.tableau.com/app/profile/steven.hiek/viz/IDAWorldBankFinancialAnalytics/IDAWorldBankFinancialAnalytics#1).
 
 ## Data Processing
 The **data includes monthly snapshots of credits, grants, and guarantees of IDA-supported projects.** A total of 1,422,052 rows were uploaded to a SQL database. After preprocessing for duplicates, null values, data types, and corrupted entries, 361,814 rows corresponding to approved projects between 2011 and 2025 were retained for analysis. Final datasets with selected columns were then created to streamline Tableau visualizations.
 
-IDA World Bank historical data can be found here [link]( https://financesone.worldbank.org/ida-statement-of-credits-grants-and-guarantees-historical-data/DS00976).
+IDA World Bank historical data can be found here [link](https://financesone.worldbank.org/ida-statement-of-credits-grants-and-guarantees-historical-data/DS00976).
 
-The SQL queries for preprocessing can be found here [link]( https://github.com/stevenhiek/World-Bank-Financial-Analytics/tree/main/Preprocessing).
+The SQL queries for preprocessing can be found here [link](https://github.com/stevenhiek/World-Bank-Financial-Analytics/tree/main/Preprocessing).
 
-The SQL queries for the post-processing to streamline Tableau visualization can be found here [link]( https://github.com/stevenhiek/World-Bank-Financial-Analytics/tree/main/Post-processing).
+The SQL queries for the post-processing to streamline Tableau visualization can be found here [link](https://github.com/stevenhiek/World-Bank-Financial-Analytics/tree/main/Post-processing).
 
 ## Executive Summary
-A replenishment is the periodic process by which donor countries provide new funding to the IDA to finance its operations over a multi-year cycle. The IDA18 Replenishment established higher funding levels and more flexible, accelerated disbursements from 2017 to 2020, with subsequent replenishments further expanding scale of funding and adaptability of disbursements. **As a result, 2017 and onwards saw an overall increase in funding by 81%, comprised primarily of credits (71%) and grants (24%).** The following sections examine financing trends and provide insights to inform future funding strategies and allocation decisions.
+A replenishment is the periodic process by which donor countries provide new funding to the IDA to finance its operations over a multi-year cycle. The IDA18 Replenishment established higher funding levels and more flexible, accelerated disbursements from 2017 to 2020, with subsequent replenishments further expanding scale of funding and adaptability of disbursements. 
 
-Below is the overview page from the Tableau dashboard and more examples are included throughout the report. View the interactive Tableau dashboard here [link]( https://public.tableau.com/app/profile/steven.hiek/viz/IDAWorldBankFinancialAnalytics/IDAWorldBankFinancialAnalytics#1).
+**As a result, 2017 and onwards saw an overall increase in funding by 81%, comprised primarily of credits (71%) and grants (24%).** The following sections examine financing trends and provide insights to inform future funding strategies and allocation decisions.
+
+Below is the overview page from the Tableau dashboard and more examples are included throughout the report. View the interactive Tableau dashboard here [link](https://public.tableau.com/app/profile/steven.hiek/viz/IDAWorldBankFinancialAnalytics/IDAWorldBankFinancialAnalytics#1).
 
 ![IDA_world_bank_tableau_overview](https://github.com/stevenhiek/World-Bank-Financial-Analytics/blob/main/Charts%20%26%20Graphs/world_bank_financial_analytics_overview.png)
 
@@ -51,7 +53,7 @@ Below is the overview page from the Tableau dashboard and more examples are incl
 * **Annual disbursement exhibits similar volatility to annual funding**, with a moving average that closely mirrors the stable and then steady increase in funding, and year-over-year growth ranging from -33% to +114%. 
 * **Projects have a high overall disbursement ratio of 90% and low overall cancellation rate of 8%**, indicating effective project execution and implementation. 
 * With a grace period of 5 to 10 years before credit repayment begins, **only a few projects have entered the repayment phase, resulting in a low overall repayment ratio of 6%.**
-
+◾ 
 ![IDA_world_bank_tableau_disbursement](https://github.com/stevenhiek/World-Bank-Financial-Analytics/blob/main/Charts%20%26%20Graphs/world_bank_financial_analytics_disbursement.png)
 
 ### Project Performance
