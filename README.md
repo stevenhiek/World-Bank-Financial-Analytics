@@ -53,7 +53,7 @@ Below is the overview page from the Tableau dashboard and more examples are incl
 * **Annual disbursement exhibits similar volatility to annual funding**, with a moving average that closely mirrors the stable and then steady increase in funding, and year-over-year growth ranging from -33% to +114%. 
 * **Projects have a high overall disbursement ratio of 90% and low overall cancellation rate of 8%**, indicating effective project execution and implementation. 
 * With a grace period of 5 to 10 years before credit repayment begins, **only a few projects have entered the repayment phase, resulting in a low overall repayment ratio of 6%.**
-◾ 
+
 ![IDA_world_bank_tableau_disbursement](https://github.com/stevenhiek/World-Bank-Financial-Analytics/blob/main/Charts%20%26%20Graphs/world_bank_financial_analytics_disbursement.png)
 
 ### Project Performance
@@ -73,6 +73,8 @@ Based on the uncovered insights, the following recommendations have been provide
 * Since the Europe and Central Asia region have the best portfolio performance in disbursement (94%), repayment (10%), and cancellation (5%) ratios, **IDA can learn best practices or operational models from the Europe and Central Asia region to help inform improvements in underperforming regions and countries.** 
 
 ## Assumptions and Caveats
+Throughout the analysis, multiple assumptions were made to manage the challenges with the data. These assumptions and caveats are noted below:
+
 * Combined regions in Africa and Middle East to one large region due to inconsistencies in region classification.
 * Values in the country variable that denoted a region were converted to unknown.
 * Data rows that contained nulls for agreement signing date, board approval date, and last effective date were considered corrupted entries.
