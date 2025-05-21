@@ -3,7 +3,7 @@
 ![IDA_World_Bank_pic](https://github.com/stevenhiek/World-Bank-Financial-Analytics/blob/main/Project%20Pic/ida_world_bank.jpg)
 
 ## Background
-The **International Development Association (IDA) is the World Bank’s concessional arm** that provides low-interest loans and grants to the world’s poorest countries to support sustainable development and reduce poverty.
+**The World Bank’s International Development Association (IDA) has provided over $500 billion in concessional financing to the world’s poorest countries**, making it one of the largest sources of development aid globally. But where does that money go—and how well is it used?
 
 This project leverages monthly historical snapshots, available from April 2011 onward, to examine all credits, grants, and guarantees approved between 2011 and 2025. **The analysis highlights key regions and uncovers trends in funding and disbursements across IDA-supported projects.** These insights aim to support strategic decisions made by stakeholders in the Operations and Finance departments.
 
