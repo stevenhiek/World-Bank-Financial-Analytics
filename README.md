@@ -52,12 +52,12 @@ Below is the overview page from the Tableau dashboard and more examples are incl
 ### Disbursement
 * **Annual disbursement exhibits similar volatility to annual funding**, with a moving average that closely mirrors the stable and then steady increase in funding, and year-over-year growth ranging from -33% to +114%. 
 * **Projects have a high overall disbursement ratio of 90% and low overall cancellation rate of 8%**, indicating effective project execution and implementation. 
-* With a grace period of 5 to 10 years before credit repayment begins, **only a few projects have entered the repayment phase, resulting in a low overall repayment ratio of 6%.**
+* With a grace period of 5 to 10 years before credit repayment begins, **only a few projects have entered the repayment phase, resulting in a low overall repayment ratio of 7%.**
 
 ![IDA_world_bank_tableau_disbursement](https://github.com/stevenhiek/World-Bank-Financial-Analytics/blob/main/Charts%20%26%20Graphs/world_bank_financial_analytics_disbursement.png)
 
 ### Project Performance
-* The **Europe and Central Asia region demonstrate the strongest overall portfolio performance with a disbursement ratio of 94%, a repayment ratio of 10%, and a cancellation ratio of 5%**, reflecting a portfolio of low-risk, well-executed, and effectively implemented projects.
+* The **Europe and Central Asia region demonstrate the strongest overall portfolio performance with a disbursement ratio of 94%, a repayment ratio of 13%, and a cancellation ratio of 5%**, reflecting a portfolio of low-risk, well-executed, and effectively implemented projects.
 * With **1,613 projects and $214 billion in total funding, the Middle East and Africa region holds the largest project portfolio**, primarily composed of credits (74%) and grants (24%).
 * The **South Asia region has the lowest disbursement ratio of 84% and highest cancellation ratio of 13%**, suggesting potential issues in local relevance, implementation feasibility, and overestimated funding needs.  
 * **Bangladesh recorded the highest funding ($26 billion), disbursement ($23 billion), and cancellation ($3 billion) amounts among all countries**, while maintaining a relatively strong disbursement ratio of 89% and a moderate cancellation ratio of 10% within the South Asia region.
@@ -70,7 +70,7 @@ Based on the uncovered insights, the following recommendations have been provide
 * While projects have a high overall disbursement ratio of 90%, there remains a **need to strengthen monitoring efforts to ensure that disbursed funds translate into measurable outcomes and tangible impact.**
 * Despite receiving the second highest total funding of $72 billion, the South Asia region exhibits the lowest disbursement ratio (84%) and the highest cancellation ratio (13%) among all regions, highlighting the **need to enhance stakeholder engagement during project planning, strengthen project design and targeting, improve risk assessment, and support capacity building in implementing agencies in the South Asia region.**
 * Bangladesh is the top-performing country in the South Asia region, with a disbursement ratio of 89% and a cancellation ratio of 10%, **making Bangladesh a potential model for best practices and locally relevant project implementation to inform improvements across the South Asia region.**
-* Since the Europe and Central Asia region have the best portfolio performance in disbursement (94%), repayment (10%), and cancellation (5%) ratios, **IDA can learn best practices or operational models from the Europe and Central Asia region to help inform improvements in underperforming regions and countries.** 
+* Since the Europe and Central Asia region have the best portfolio performance in disbursement (94%), repayment (13%), and cancellation (5%) ratios, **IDA can learn best practices or operational models from the Europe and Central Asia region to help inform improvements in underperforming regions and countries.** 
 
 ## Assumptions and Caveats
 Throughout the analysis, multiple assumptions were made to manage the challenges with the data. These assumptions and caveats are noted below:
