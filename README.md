@@ -35,6 +35,8 @@ A replenishment is the periodic process by which donor countries provide new fun
 
 Below is the overview page from the Tableau dashboard and more examples are included throughout the report. View the interactive Tableau dashboard here [link]( https://public.tableau.com/app/profile/steven.hiek/viz/IDAWorldBankFinancialAnalytics/IDAWorldBankFinancialAnalytics#1).
 
+![IDA_world_bank_tableau_overview](https://github.com/stevenhiek/World-Bank-Financial-Analytics/blob/main/Charts%20%26%20Graphs/world_bank_financial_analytics_overview.png)
+
 ## Insights Deep Dive
 ### Funding
 * Since 2011, a **total of 2,804 projects have been funded**, with an average project lifecycle of 5.4 years.
@@ -43,16 +45,22 @@ Below is the overview page from the Tableau dashboard and more examples are incl
 * **Credit and grant funding saw a significant surge between 2020 and 2023 due to the COVID-19 pandemic, with total funding increasing by 107% from 2019 to 2020**, driving all regions to scale up global efforts in strengthening health systems and emergency response.
 * **IDA funding grew by 44% in 2014 and 51% in 2017**, driven by health emergencies, armed conflicts, refugee crises, and climate-related disasters.
 
+![IDA_world_bank_tableau_funding](https://github.com/stevenhiek/World-Bank-Financial-Analytics/blob/main/Charts%20%26%20Graphs/world_bank_financial_analytics_funding.png)
+
 ### Disbursement
 * **Annual disbursement exhibits similar volatility to annual funding**, with a moving average that closely mirrors the stable and then steady increase in funding, and year-over-year growth ranging from -33% to +114%. 
 * **Projects have a high overall disbursement ratio of 90% and low overall cancellation rate of 8%**, indicating effective project execution and implementation. 
 * With a grace period of 5 to 10 years before credit repayment begins, **only a few projects have entered the repayment phase, resulting in a low overall repayment ratio of 6%.**
+
+![IDA_world_bank_tableau_disbursement](https://github.com/stevenhiek/World-Bank-Financial-Analytics/blob/main/Charts%20%26%20Graphs/world_bank_financial_analytics_disbursement.png)
 
 ### Project Performance
 * The **Europe and Central Asia region demonstrate the strongest overall portfolio performance with a disbursement ratio of 94%, a repayment ratio of 10%, and a cancellation ratio of 5%**, reflecting a portfolio of low-risk, well-executed, and effectively implemented projects.
 * With **1,613 projects and $214 billion in total funding, the Middle East and Africa region holds the largest project portfolio**, primarily composed of credits (74%) and grants (24%).
 * The **South Asia region has the lowest disbursement ratio of 84% and highest cancellation ratio of 13%**, suggesting potential issues in local relevance, implementation feasibility, and overestimated funding needs.  
 * **Bangladesh recorded the highest funding ($26 billion), disbursement ($23 billion), and cancellation ($3 billion) amounts among all countries**, while maintaining a relatively strong disbursement ratio of 89% and a moderate cancellation ratio of 10% within the South Asia region.
+
+![IDA_world_bank_tableau_top_performance](https://github.com/stevenhiek/World-Bank-Financial-Analytics/blob/main/Charts%20%26%20Graphs/world_bank_financial_analytics_top_performance.png)
 
 ## Recommendations
 * While projects have a high overall disbursement ratio of 90%, there remains a **need to strengthen monitoring efforts to ensure that disbursed funds translate into measurable outcomes and tangible impact.**
