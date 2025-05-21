@@ -1,4 +1,4 @@
-# IDA World Bank Financial Analytics
+# IDA World Bank Financial Analytics: Investing in Impact
 
 ![IDA_World_Bank_pic](https://github.com/stevenhiek/World-Bank-Financial-Analytics/blob/main/Project%20Pic/ida_world_bank.jpg)
 
