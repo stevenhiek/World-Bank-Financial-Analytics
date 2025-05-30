@@ -2,9 +2,18 @@
 
 ![IDA_World_Bank_pic](https://github.com/stevenhiek/World-Bank-Financial-Analytics/blob/main/Project%20Pic/ida_world_bank.jpg)
 
-## Background
-**The World Bank’s International Development Association (IDA) has provided over $500 billion in concessional financing to the world’s poorest countries**, making it one of the largest sources of development aid globally. But where does that money go—and how well is it used?
+## Executive Summary
+**The World Bank’s International Development Association (IDA) has provided over $500 billion in concessional financing to the world’s poorest countries**, making it one of the largest sources of development aid globally.
 
+A replenishment is the periodic process by which donor countries provide new funding to the IDA to finance its operations over a multi-year cycle. The IDA18 Replenishment established higher funding levels and more flexible, accelerated disbursements from 2017 to 2020, with subsequent replenishments further expanding scale of funding and adaptability of disbursements. **As a result, 2017 and onwards saw an overall increase in funding by 81%, comprised primarily of credits (71%) and grants (24%).** 
+
+The following sections examine financing trends and provide insights to inform future funding strategies and allocation decisions.
+
+Below is the overview page from the Tableau dashboard and more examples are included throughout the report. View the interactive Tableau dashboard here [link](https://public.tableau.com/app/profile/steven.hiek/viz/IDAWorldBankFinancialAnalytics/IDAWorldBankFinancialAnalytics#1).
+
+![IDA_world_bank_tableau_overview](https://github.com/stevenhiek/World-Bank-Financial-Analytics/blob/main/Charts%20%26%20Graphs/world_bank_financial_analytics_overview.png)
+
+## Background
 This project leverages monthly historical snapshots, available from April 2011 onward, to examine all credits, grants, and guarantees approved between 2011 and 2025. **The analysis highlights key regions and uncovers trends in funding and disbursements across IDA-supported projects.** These insights aim to support strategic decisions made by stakeholders in the Operations and Finance departments.
 
 Insights and recommendations are provided on the following key areas:
@@ -29,15 +38,6 @@ IDA World Bank historical data can be found here [link](https://financesone.worl
 The SQL queries for preprocessing can be found here [link](https://github.com/stevenhiek/World-Bank-Financial-Analytics/tree/main/Preprocessing).
 
 The SQL queries for the post-processing to streamline Tableau visualization can be found here [link](https://github.com/stevenhiek/World-Bank-Financial-Analytics/tree/main/Post-processing).
-
-## Executive Summary
-A replenishment is the periodic process by which donor countries provide new funding to the IDA to finance its operations over a multi-year cycle. The IDA18 Replenishment established higher funding levels and more flexible, accelerated disbursements from 2017 to 2020, with subsequent replenishments further expanding scale of funding and adaptability of disbursements. 
-
-**As a result, 2017 and onwards saw an overall increase in funding by 81%, comprised primarily of credits (71%) and grants (24%).** The following sections examine financing trends and provide insights to inform future funding strategies and allocation decisions.
-
-Below is the overview page from the Tableau dashboard and more examples are included throughout the report. View the interactive Tableau dashboard here [link](https://public.tableau.com/app/profile/steven.hiek/viz/IDAWorldBankFinancialAnalytics/IDAWorldBankFinancialAnalytics#1).
-
-![IDA_world_bank_tableau_overview](https://github.com/stevenhiek/World-Bank-Financial-Analytics/blob/main/Charts%20%26%20Graphs/world_bank_financial_analytics_overview.png)
 
 ## Insights Deep Dive
 ### Funding
