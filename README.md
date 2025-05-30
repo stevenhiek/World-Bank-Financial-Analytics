@@ -5,7 +5,9 @@
 ## Executive Summary
 **The World Bank’s International Development Association (IDA) has provided over $500 billion in concessional financing to the world’s poorest countries**, making it one of the largest sources of development aid globally.
 
-A replenishment is the periodic process by which donor countries provide new funding to the IDA to finance its operations over a multi-year cycle. The IDA18 Replenishment established higher funding levels and more flexible, accelerated disbursements from 2017 to 2020, with subsequent replenishments further expanding scale of funding and adaptability of disbursements. **As a result, 2017 and onwards saw an overall increase in funding by 81%, comprised primarily of credits (71%) and grants (24%).** 
+A replenishment is the periodic process by which donor countries provide new funding to the IDA to finance its operations over a multi-year cycle. The IDA18 Replenishment established higher funding levels and more flexible, accelerated disbursements from 2017 to 2020, with subsequent replenishments further expanding scale of funding and adaptability of disbursements. 
+
+**As a result, 2017 and onwards saw an overall increase in funding by 81%, comprised primarily of credits (71%) and grants (24%).** The Europe and Central Asia region have the best portfolio performance in disbursement (94%), repayment (13%), and cancellation (5%) ratios. **Best practices or operational models from the Europe and Central Asia region can help to inform improvements in underperforming regions and countries.**
 
 The following sections examine financing trends and provide insights to inform future funding strategies and allocation decisions.
 
