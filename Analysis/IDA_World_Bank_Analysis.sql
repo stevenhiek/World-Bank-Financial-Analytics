@@ -4,7 +4,6 @@ DATA ANALYSIS
 - Data from April 2011 to April 2025; data as of April 30, 2025
 	- Focus time period between 2011 to 2025
 - Dataset includes financial instruments: credits, grants, and guarantees
-- Funding will be for credits and grants; often excluding guarantees unless specified in question
 
 Project Questions:
 1. Which regions or countries received the most credits, grants, and guarantees? 
